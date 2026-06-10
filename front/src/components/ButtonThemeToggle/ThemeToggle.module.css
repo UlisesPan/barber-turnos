@@ -1,0 +1,19 @@
+.btnPremium {
+  background-color: var(--accent-color); /* Tu dorado */
+  color: var(--bg-color); /* En dark mode será oscuro, dando buen contraste */
+  border: 2px solid var(--accent-color);
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.btnPremium:hover {
+  background-color: transparent;
+  color: var(--accent-color);
+}
+

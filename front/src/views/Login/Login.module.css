@@ -1,0 +1,199 @@
+.loginContainer {
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.loginBox {
+  width: 50%;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--card-bg);
+}
+
+.loginBox h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.description {
+  color: var(--text-color);
+  opacity: 0.7;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.error {
+  background-color: #dc2626;
+  color: white;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  color: var(--text-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotLink {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: normal;
+  transition: opacity 0.3s;
+}
+
+.forgotLink:hover {
+  opacity: 0.8;
+}
+
+.formGroup input {
+  background-color: var(--bg-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  transition: border-color 0.3s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.loginBtn {
+  background-color: var(--accent-color);
+  color: var(--card-bg);
+  padding: 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+  letter-spacing: 1px;
+  margin-top: 1rem;
+}
+
+.loginBtn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.loginBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.registerLink {
+  text-align: center;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.registerLink a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.3s;
+}
+
+.registerLink a:hover {
+  opacity: 0.8;
+}
+
+/* Lado decorativo */
+.decorative {
+  width: 50%;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.05"/></pattern></defs><rect width="1200" height="800" fill="url(%23grid)"/></svg>');
+}
+
+.decorativeContent {
+  color: var(--accent-color);
+  text-align: center;
+}
+
+.decorativeContent h2 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 2px;
+}
+
+.decorativeSubtitle {
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  color: var(--accent-color);
+  opacity: 0.8;
+  margin: 0 0 2rem 0;
+}
+
+.decorativeContent p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.7;
+  max-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loginContainer {
+    flex-direction: column;
+  }
+
+  .loginBox {
+    width: 100%;
+    padding: 2rem;
+  }
+
+  .decorative {
+    width: 100%;
+    min-height: 200px;
+  }
+
+  .loginBox h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.25rem;
+  }
+}

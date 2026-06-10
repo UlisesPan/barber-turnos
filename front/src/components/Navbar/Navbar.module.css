@@ -1,0 +1,201 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--card-bg); /* Usa tus variables CSS */
+  border-radius: 8px; /* Por el diseño redondeado que tiene la imagen */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.navLinks {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navLinks a:hover {
+  color: var(--accent-color);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profileContainer {
+  position: relative;
+}
+
+.avatarButton {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  background-color: var(--accent-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.avatarButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px var(--accent-color);
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitials {
+  color: var(--card-bg);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  min-width: 220px;
+  z-index: 101;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  padding: 1rem;
+  text-align: center;
+}
+
+.dropdownHeader strong {
+  display: block;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.dropdownHeader p {
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.dropdown hr {
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid var(--accent-color);
+  opacity: 0.3;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  font-size: 0.9rem;
+}
+
+.dropdownItem:hover {
+  background-color: var(--accent-color);
+  color: var(--card-bg);
+}
+
+.hamburger {
+  display: none; /* Oculto en PC */
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* --- ESTILOS MOBILE (Responsive) --- */
+@media (max-width: 768px) {
+  .navbar {
+    width: 90%;
+    padding: 1rem;
+  }
+
+  .hamburger {
+    display: block; /* Mostramos el botón hamburguesa */
+  }
+
+  .navLinks {
+    display: none; /* Ocultamos los links por defecto */
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .navLinks.active {
+    display: flex; /* Se muestra cuando el estado isMobileMenuOpen es true */
+  }
+
+  .actions {
+    display: flex; /* El avatar siempre visible en mobile */
+    gap: 1rem;
+  }
+
+  .dropdown {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

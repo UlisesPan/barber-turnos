@@ -56,10 +56,6 @@ const createTurnService = (turnData) => __awaiter(void 0, void 0, void 0, functi
         throw new Error((0, appointmentValidation_1.getTimeSlotErrorMessage)());
     }
     const allAppointments = yield AppDataSources_1.AppointmentModel.find();
-    console.log(`📅 Turnos existentes en BD: ${allAppointments.length}`);
-    allAppointments.forEach((apt, index) => {
-        console.log(`   [${index}] Fecha: ${apt.date}, Hora: ${apt.time}, Status: ${apt.status}`);
-    });
     const hasConflict = yield (0, appointmentValidation_1.validateNoConflictAppointment)(allAppointments, appointmentDate, turnData.time);
     if (!hasConflict) {
         throw new Error("Ya existe un turno en esa fecha y hora");
@@ -77,7 +73,6 @@ const createTurnService = (turnData) => __awaiter(void 0, void 0, void 0, functi
     }
     catch (emailError) {
         console.warn("⚠️ Error al enviar email:", emailError);
-        // No lanzar error, el turno ya se creó
     }
     return savedAppointment;
 });

@@ -8,7 +8,7 @@ class Appointment {
   id: number;
 
   @Column({ type: 'date' })
-  date: Date; // ✅ Date en lugar de string
+  date: Date;
 
   @Column()
   time: string;

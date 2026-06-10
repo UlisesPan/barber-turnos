@@ -57,7 +57,7 @@ export const validateNoConflictAppointment = async (
     // Si la fecha es igual Y la hora es igual, hay conflicto
     if (existingDateString === newDateString && appointment.time === newTime) {
       console.log(`   ❌ CONFLICTO ENCONTRADO`);
-      return false; // ← CONFLICTO ENCONTRADO
+      return false; 
     }
     console.log('newDateString:', newDateString);
   console.log('existingDateString:', existingDateString);
@@ -65,5 +65,5 @@ export const validateNoConflictAppointment = async (
   console.log('appointment.time:', appointment.time);
   }
  console.log(`   ✅ No hay conflictos`);
-  return true; // ← NO HAY CONFLICTO, ES VÁLIDO
+  return true; 
 };

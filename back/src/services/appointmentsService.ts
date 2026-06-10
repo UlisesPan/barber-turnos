@@ -1,4 +1,4 @@
-import {  CreateAppointmentDto, IAppointment  } from '../interfaces/IAppointments';
+import {  CreateAppointmentDto } from '../interfaces/IAppointments';
 import {sendTurnConfirmation} from './mailerService';
 import Appointment from '../entities/Appointments';
 import { AppointmentModel, ServiceModel, UserModel } from '../config/AppDataSources';
@@ -56,12 +56,7 @@ const appointmentDate = new Date(turnData.date);
   const allAppointments = await AppointmentModel.find();
 
   
-  console.log(`📅 Turnos existentes en BD: ${allAppointments.length}`);
-  allAppointments.forEach((apt, index) => {
-    console.log(
-      `   [${index}] Fecha: ${apt.date}, Hora: ${apt.time}, Status: ${apt.status}`
-    );
-  });
+
 
     const hasConflict = await validateNoConflictAppointment(
       allAppointments,
@@ -87,10 +82,11 @@ const appointmentDate = new Date(turnData.date);
     await sendTurnConfirmation(user.email, 'active');
   } catch (emailError) {
     console.warn("⚠️ Error al enviar email:", emailError);
-    // No lanzar error, el turno ya se creó
   }
     return savedAppointment;
 };
+
+
 
 
 export const cancelTurnService = async (id: number): Promise<Appointment> => {

@@ -1,0 +1,44 @@
+@import url('./reset.css');
+
+:root {
+  /* Variables para el modo CLARO */
+  --bg-color: #ffffff;
+  --card-bg: #f0f0f0;
+  --text-color: #000000;
+  --accent-color: #d4af37;
+}
+
+[data-theme='dark'] {
+  /* Variables para el modo OSCURO */
+  --bg-color: #110f0f;
+  --card-bg: rgba(68, 68, 68);
+  --text-color: #fcfcfc;
+  --accent-color: #d4af37;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}

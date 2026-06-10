@@ -30,15 +30,14 @@ exports.getTimeSlotErrorMessage = getTimeSlotErrorMessage;
 //Convierte una fecha y hora en un timestamp para comparación
 const formatDateToString = (date) => {
     if (typeof date === 'string') {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            return date;
-        }
+        // Captura YYYY-MM-DD esté o no seguido de T... (ISO string)
+        const match = date.match(/^(\d{4}-\d{2}-\d{2})/);
+        if (match)
+            return match[1]; // ✅ Devuelve solo la parte YYYY-MM-DD
         date = new Date(date);
     }
-    // ⚠️ MongoDB guarda fechas en UTC, usar métodos locales
-    // para evitar desfase de día
     const year = date.getFullYear();
-    const month = String(date.getMonth()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
@@ -57,10 +56,14 @@ const validateNoConflictAppointment = (existingAppointments, newDate, newTime) =
         // Si la fecha es igual Y la hora es igual, hay conflicto
         if (existingDateString === newDateString && appointment.time === newTime) {
             console.log(`   ❌ CONFLICTO ENCONTRADO`);
-            return false; // ← CONFLICTO ENCONTRADO
+            return false;
         }
+        console.log('newDateString:', newDateString);
+        console.log('existingDateString:', existingDateString);
+        console.log('newTime:', newTime);
+        console.log('appointment.time:', appointment.time);
     }
     console.log(`   ✅ No hay conflictos`);
-    return true; // ← NO HAY CONFLICTO, ES VÁLIDO
+    return true;
 });
 exports.validateNoConflictAppointment = validateNoConflictAppointment;

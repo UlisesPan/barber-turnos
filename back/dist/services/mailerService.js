@@ -26,7 +26,7 @@ const sendTurnConfirmation = (toEmail, tipo) => __awaiter(void 0, void 0, void 0
     const templates = {
         active: {
             asunto: '✅ Turno confirmado',
-            mensaje: 'Tu turno fue reservado exitosamente.',
+            mensaje: 'Tu turno fue reservado exitosamente, te esperamos en la fecha y hora acordada. Muchas gracias por elegirnos.',
         },
         cancelled: {
             asunto: '❌ Turno cancelado',

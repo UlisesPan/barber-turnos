@@ -31,15 +31,12 @@ const getCategoryByIdService = (id) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getCategoryByIdService = getCategoryByIdService;
 const createCategoryService = (categoryData) => __awaiter(void 0, void 0, void 0, function* () {
-    // Validar que name no esté vacío
     if (!categoryData.name || categoryData.name.trim() === "") {
         throw new Error("El nombre de la categoría es requerido");
     }
-    // Validar que duration sea válido
     if (!categoryData.duration || categoryData.duration <= 0) {
         throw new Error("La duración debe ser mayor a 0");
     }
-    // Validar que price sea válido
     if (!categoryData.price || categoryData.price <= 0) {
         throw new Error("El precio debe ser mayor a 0");
     }
@@ -50,7 +47,6 @@ const createCategoryService = (categoryData) => __awaiter(void 0, void 0, void 0
     if (existingCategory) {
         throw new Error("Ya existe una categoría con ese nombre");
     }
-    // ===== CREAR CATEGORÍA =====
     const newCategory = AppDataSources_1.ServiceModel.create({
         name: categoryData.name.trim(),
         duration: categoryData.duration,
