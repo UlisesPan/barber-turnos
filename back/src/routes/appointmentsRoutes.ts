@@ -1,15 +1,25 @@
-import { Router, Request, Response } from "express";
-import { getAllAppointments, getAppointmentById, createAppointment, cancelAppointment } from "../controllers/appointmentsControllers";
+import { Router } from "express";
+import { getAllAppointments,
+     getAppointmentById,
+      getAvailableSlots,
+       createAppointment,
+        cancelAppointment,
+         getAppointmentsByUser,
+        getBlockedByDate,
+        blockSlot,
+        unblockSlot 
+     } from "../controllers/appointmentsControllers";
+import { authMiddleware } from '../middlewares/authMiddleware';
+import { isAdmin } from '../middlewares/isAdmin';
 const routerAppointments: Router = Router();
-
 // GET /appointments => Obtener el listado de todos los turnos de todos los usuarios.
-routerAppointments.get("/", getAllAppointments);
-
-// GET /appointments/:id => Obtener el detalle de un turno específico.
-routerAppointments.get("/:id", getAppointmentById);
-// POST /appointments/schedule => Agendar un nuevo turno.
+routerAppointments.get("/", authMiddleware, isAdmin, getAllAppointments);
+routerAppointments.get("/user/:userId", authMiddleware, getAppointmentsByUser);
+routerAppointments.get("/available/:date", getAvailableSlots);
+routerAppointments.get("/blocked/:date", authMiddleware, isAdmin, getBlockedByDate); // ← subir aquí
+routerAppointments.get("/:id", getAppointmentById); // ← catch-all, siempre al final
 routerAppointments.post("/schedule", createAppointment);
-// PUT /appointments/:id/cancel => Cambiar el estatus de un turno a "cancelled".
+routerAppointments.post("/block", authMiddleware, isAdmin, blockSlot);
 routerAppointments.put("/:id/cancel", cancelAppointment);
-
+routerAppointments.delete("/block/:id", authMiddleware, isAdmin, unblockSlot);
 export default routerAppointments;

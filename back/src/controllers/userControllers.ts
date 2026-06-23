@@ -3,7 +3,8 @@ import multer from 'multer';
 import {IUser, IUserDto, IUserData} from '../interfaces/IUser';
 import { getUsersService, getUsersServiceById, registerUserService, getUserByCredentialsId, updateProfilePhotoService } from '../services/userService';
 import { validateCredentialsService } from '../services/credentialsService';
-import User from '../entities/User';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/envs';
 
  export const createUser = async (req: Request, res: Response): Promise<void> => {
     try
@@ -50,11 +51,18 @@ export const loginUser = async (req: Request, res: Response) => {
         const credential = await validateCredentialsService({ username, password });
         
         const user = await getUserByCredentialsId(credential.id);
-        
+        const token = jwt.sign(
+        { id: user.id, role: user.role },
+        JWT_SECRET as string,
+        { expiresIn: '7d' }
+        );
+
         res.status(200).json({
-            message: "Login exitoso",
-            user: user
+        message: 'Login exitoso',
+        token,
+        user,
         });
+        
     } catch (error) {
         res.status(401).json({
             message: error instanceof Error ? error.message : "Credenciales inválidas"

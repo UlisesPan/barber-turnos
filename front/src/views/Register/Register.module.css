@@ -1,63 +1,94 @@
-.registerContainer {
-  display: flex;
+.registerPage {
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--bg-color);
 }
 
-.registerBox {
-  width: 50%;
-  padding: 4rem;
+.registerCard {
+background-color: #141414; /* Fondo oscuro de la tarjeta */
+      width: 400px;
+      max-width: 90%;
+      padding: 30px;
+      border-radius: 15px;
+      border: 0.1 solid #D4AF37; /* Borde dorado */
+      box-shadow: 0 0 20px rgba(236, 182, 6, 0.4); /* Resplandor dorado de caja */
+      position: relative;
+      text-align: center;
+}
+
+.cardHeader {
+  text-align: center;
+  margin: 0.5rem auto;
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto;
+}
+
+.logoImg {
+  margin-left: 3rem;
+  width: 70px;
+  height: 70px;
+  filter: invert(72%) sepia(91%) saturate(2283%) ;
+  object-fit: contain;
+}
+
+.logoText {
+  margin-right:1rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background-color: var(--card-bg);
-  overflow-y: auto;
+  line-height: 1.1;
+  text-align: left;
 }
 
-.registerBox h1 {
+.logoBrand1 {
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: 400;
+  color: #f5f0e8;
+  letter-spacing: 1px;
+}
+
+.logoBrand2 {
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--accent-color);
-  margin: 0 0 0.5rem 0;
   letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
-.subtitle {
-  font-size: 1.5rem;
-  color: var(--text-color);
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
+.formTitle {
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: #f5f0e8;
+  letter-spacing: 1px;
+  margin: 0;
 }
 
-.description {
-  color: var(--text-color);
-  opacity: 0.7;
-  margin-bottom: 2rem;
-  font-size: 0.95rem;
-}
-
-.error {
-  background-color: #dc2626;
-  color: white;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+.fieldError {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 .success {
-  background-color: #16a34a;
-  color: white;
-  padding: 1rem;
-  border-radius: 4px;
+  background-color: rgba(22, 163, 74, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  padding: 0.85rem 1rem;
+  border-radius: var(--border-radius);
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.15rem;
 }
 
 .formGroup {
@@ -65,130 +96,103 @@ form {
   flex-direction: column;
 }
 
-.formGroup label {
-  color: var(--text-color);
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  letter-spacing: 1px;
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.formGroup input {
-  background-color: var(--bg-color);
-  border: 1px solid var(--accent-color);
-  border-radius: 4px;
-  padding: 0.75rem;
-  color: var(--text-color);
-  font-size: 0.95rem;
-  transition: border-color 0.3s;
+.inputIcon {
+  position: absolute;
+  left: 0.9rem;
+  color: #fcc40c;
+  opacity: 0.6;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
 }
 
-.formGroup input:focus {
+.inputWrapper input {
+  width: 100%;
+  background-color: #1a1410;
+  border: 1px solid #fcc40c;
+  border-radius: 15px;
+  padding: 0.85rem 2.75rem 0.85rem 2.5rem;
+  color: #f5f0e8;
+  font-size: 1rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.inputWrapper input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.inputWrapper input:focus {
   outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 0 3px rgba(232, 149, 58, 0.12);
+}
+
+.togglePassword {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #fcc40c;
+  opacity: 0.6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  transition: opacity var(--transition);
+}
+
+.togglePassword:hover {
+  opacity: 1;
 }
 
 .registerBtn {
   background-color: var(--accent-color);
-  color: var(--card-bg);
-  padding: 1rem;
+  color: #1a1512;
+  padding: 0.95rem;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 0.95rem;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: opacity 0.3s, transform 0.2s;
-  letter-spacing: 1px;
-  margin-top: 1rem;
+  transition: all var(--transition);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
 }
 
-.registerBtn:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
-
-.registerBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .loginLink {
   text-align: center;
-  color: var(--text-color);
-  font-size: 0.9rem;
-  margin-top: 1.5rem;
+  color: #ffff;
+  font-size: 0.82rem;
+  margin-top: 1.75rem;
 }
 
 .loginLink a {
   color: var(--accent-color);
   text-decoration: none;
   font-weight: 600;
-  transition: opacity 0.3s;
+  transition: opacity var(--transition);
 }
 
 .loginLink a:hover {
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-/* Lado decorativo */
-.decorative {
-  width: 50%;
-  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.05"/></pattern></defs><rect width="1200" height="800" fill="url(%23grid)"/></svg>');
-}
-
-.decorativeContent {
-  color: var(--accent-color);
-  text-align: center;
-}
-
-.decorativeContent h2 {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: 2px;
-}
-
-.decorativeSubtitle {
-  font-size: 0.9rem;
-  letter-spacing: 3px;
-  color: var(--accent-color);
-  opacity: 0.8;
-  margin: 0 0 2rem 0;
-}
-
-.decorativeContent p {
-  font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.7;
-  max-width: 300px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .registerContainer {
-    flex-direction: column;
+@media (max-width: 480px) {
+  .registerCard {
+    padding: 2rem 1.5rem;
   }
 
-  .registerBox {
-    width: 100%;
-    padding: 2rem;
-  }
-
-  .decorative {
-    width: 100%;
-    min-height: 200px;
-  }
-
-  .registerBox h1 {
+  .cardHeader h1 {
     font-size: 1.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.25rem;
   }
 }

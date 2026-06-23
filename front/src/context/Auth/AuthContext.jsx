@@ -1,6 +1,5 @@
-import { createContext, useState } from 'react';
-
-const AuthContext = createContext();
+import {  useState } from 'react';
+import AuthContext from './AuthContext.js'
 
 // Initializer function para cargar estado inicial
 const initAuthState = () => {

@@ -24,6 +24,9 @@ class User {
     @Column({ nullable: true })
     profilePhoto?: string;   
 
+    @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
+    role: 'user' | 'admin';
+
     @OneToOne(() => Credentials,credential => credential.user, {
         eager: true, // ✅ Carga automática de las credenciales con cada usuario
         cascade: true // ✅ Permite crear/actualizar credenciales al crear/actualizar usuario

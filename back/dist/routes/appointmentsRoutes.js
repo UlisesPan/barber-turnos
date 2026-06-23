@@ -2,9 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const appointmentsControllers_1 = require("../controllers/appointmentsControllers");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const isAdmin_1 = require("../middlewares/isAdmin");
 const routerAppointments = (0, express_1.Router)();
 // GET /appointments => Obtener el listado de todos los turnos de todos los usuarios.
-routerAppointments.get("/", appointmentsControllers_1.getAllAppointments);
+routerAppointments.get("/", authMiddleware_1.authMiddleware, isAdmin_1.isAdmin, appointmentsControllers_1.getAllAppointments);
+// GET /appointments/user/:userId => Obtener los turnos de un usuario específico.
+routerAppointments.get("/user/:userId", authMiddleware_1.authMiddleware, appointmentsControllers_1.getAppointmentsByUser);
 // GET /appointments/:id => Obtener el detalle de un turno específico.
 routerAppointments.get("/:id", appointmentsControllers_1.getAppointmentById);
 // POST /appointments/schedule => Agendar un nuevo turno.

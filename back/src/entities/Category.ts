@@ -13,6 +13,8 @@ export class Category {
   duration: number; 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
+  @Column({ nullable: true })
+  image?: string;
  @OneToMany(() => Appointment, appointment => appointment.category)
   appointments: Appointment[];
 }

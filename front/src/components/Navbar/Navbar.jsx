@@ -1,14 +1,24 @@
-import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useContext, useRef } from 'react';
+import { uploadPhoto } from '../../api/AxiosRegister.js';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import ThemeToggle from '../ButtonThemeToggle/ThemeToggle.jsx';
 import AuthContext from '../../context/Auth/AuthContext.jsx';
+import ThemeToggle from '../ButtonThemeToggle/ThemeToggle.jsx'
+import logoBarber from '../../../public/Logo-barber.png'
+const NAV_LINKS = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Servicios', href: '/servicios' },
+  { label: 'Turnos', href: '/turnos' },
+  { label: 'Contacto', href: '#contact' },
+];
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const { user, logout, isAuthenticated } = useContext(AuthContext);
+  const { user, logout, login, token, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const fileInputRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -24,7 +34,6 @@ const Navbar = () => {
     navigate('/');
   };
 
-  // Obtener iniciales del usuario
   const getInitials = () => {
     if (user?.name) {
       return user.name
@@ -37,68 +46,104 @@ const Navbar = () => {
     return 'U';
   };
 
+  const handlePhotoUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const res = await uploadPhoto(user.id, file);
+    login({ ...user, profilePhoto: res.profilePhoto }, token);
+  } catch {
+    // silencioso — si falla, no rompe el navbar
+  }
+};
   return (
-    <nav className={styles.navbar}>
-      {/* Logo */}
-      <div className={styles.logoContainer}>
-        <span className={styles.logo}>CHACO BARBER</span>
-      </div>
+    <header className={styles.navWrapper}>
+      <nav className={styles.navbar}>
+        <div className={styles.logoContainer}>
+          <a href="/" >
+          <img src={logoBarber} alt=""className={styles.logo} />
+          </a>
+        </div>
 
-      {/* Botón Hamburguesa para Mobile */}
-      <button className={styles.hamburger} onClick={toggleMenu}>
-        ☰
-      </button>
+        <button
+          className={styles.hamburger}
+          onClick={toggleMenu}
+          aria-label="Abrir menú"
+        >
+          ☰
+        </button>
 
-      {/* Links de Navegación */}
-      <ul className={`${styles.navLinks} ${isMobileMenuOpen ? styles.active : ''}`}>
-        <li><a href="/">Home</a></li>
-        <li><a href="#services">Services</a></li>
-        <li><a href="#misturnos">Mis Turnos</a></li>
-        <li><a href="#team">Team</a></li>
-        <li><a href="#booking">Booking</a></li>
-        <li><a href="#contact">Contact</a></li>
-        {isAuthenticated && <li><a href="#misturnos">Mis Turnos</a></li>}
-      </ul>
+        <ul className={`${styles.navLinks} ${isMobileMenuOpen ? styles.active : ''}`}>
+    {NAV_LINKS.map((link) => (
+  <li key={link.href}>
+    <Link
+      to={link.href}
+      className={location.pathname === link.href ? styles.activeLink : ''}
+      onClick={() => setIsMobileMenuOpen(false)}
+    >
+      {link.label}
+    </Link>
+  </li>
+))}
+         
+        </ul>
 
-      {/* Acciones: Dark Mode, Avatar y Perfil */}
-      <div className={styles.actions}>
-        <ThemeToggle />
-
-        {isAuthenticated && (
-          <div className={styles.profileContainer}>
-            {/* Avatar */}
-            <button
-              className={styles.avatarButton}
-              onClick={toggleProfileDropdown}
-              title={user?.name}
-            >
-              {user?.profileImage ? (
-                <img src={user.profileImage} alt={user.name} className={styles.profileImage} />
-              ) : (
-                <span className={styles.avatarInitials}>{getInitials()}</span>
-              )}
-            </button>
-
-            {/* Dropdown Menú */}
-            {isProfileDropdownOpen && (
-              <div className={styles.dropdown}>
-                <div className={styles.dropdownHeader}>
-                  <strong>{user?.name}</strong>
-                  <p>{user?.email}</p>
-                </div>
-                <hr />
-                <button className={styles.dropdownItem}>
-                  👤 Mi Perfil
-                </button>
-                <button className={styles.dropdownItem} onClick={handleLogout}>
-                  🚪 Cerrar Sesión
-                </button>
-              </div>
-            )}
+        <div className={styles.actions}>
+          {!isAuthenticated && (
+            <Link to="/login" className={styles.loginBtn}>Ingresar</Link>
+          )}
+          <div className={styles.ThemeToggle}>
+           <ThemeToggle />
           </div>
-        )}
-      </div>
-    </nav>
+
+          {isAuthenticated && (
+            <div className={styles.profileContainer}>
+              <button
+                className={styles.avatarButton}
+                onClick={toggleProfileDropdown}
+                title={user?.name}
+              >
+                {user?.profilePhoto ? (
+                   <img
+                    src={`${import.meta.env.VITE_API_URL}/uploads/${user.profilePhoto}`}
+                    alt={user.name}
+                    className={styles.profileImage}
+                  />
+                ) : (
+                  <span className={styles.avatarInitials}>{getInitials()}</span>
+                )}
+              </button>
+
+              {isProfileDropdownOpen && (
+               <div className={styles.dropdown}>
+  <div className={styles.dropdownHeader}>
+    <strong>{user?.name}</strong>
+    <p>{user?.email}</p>
+  </div>
+  <hr />
+  <button
+    className={styles.dropdownItem}
+    onClick={() => fileInputRef.current?.click()}
+  >
+    📷 Cambiar foto de perfil
+  </button>
+  <input
+    ref={fileInputRef}
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    style={{ display: 'none' }}
+    onChange={handlePhotoUpload}
+  />
+  <button className={styles.dropdownItem} onClick={handleLogout}>
+    🚪 Cerrar Sesión
+  </button>
+</div>
+              )}
+            </div>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 };
 

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateNoConflictAppointment = exports.formatDateToString = exports.getTimeSlotErrorMessage = exports.isValidTimeSlot = exports.timeRegex = void 0;
+exports.validateNoConflictAppointment = exports.formatDateToString = exports.getWeekdayErrorMessage = exports.isValidWeekday = exports.getTimeSlotErrorMessage = exports.isValidTimeSlot = exports.timeRegex = void 0;
 exports.timeRegex = /^(0?[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
 //Función para validar que el horario esté dentro de los rangos permitidos
 const isValidTimeSlot = (time) => {
@@ -17,16 +17,31 @@ const isValidTimeSlot = (time) => {
     if (!regex.test(time))
         return false;
     const [hour] = time.split(':').map(Number);
-    const isMorning = hour >= 8 && hour < 12;
+    const isMorning = hour >= 10 && hour < 13;
     const isAfternoon = hour >= 16 && hour < 20;
     return isMorning || isAfternoon;
 };
 exports.isValidTimeSlot = isValidTimeSlot;
-//Mensaje de error para horarios inválidos
 const getTimeSlotErrorMessage = () => {
-    return "Los horarios válidos son de 8:00 AM a 12:00 PM o de 4:00 PM a 8:00 PM.";
+    return "Los horarios válidos son de 10:00 a 13:00 o de 16:00 a 20:00.";
 };
 exports.getTimeSlotErrorMessage = getTimeSlotErrorMessage;
+// Usa la cadena YYYY-MM-DD para evitar problemas de zona horaria al construir la fecha
+const isValidWeekday = (date) => {
+    var _a, _b;
+    const dateString = typeof date === 'string'
+        ? (_b = (_a = date.match(/^(\d{4}-\d{2}-\d{2})/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : ''
+        : (0, exports.formatDateToString)(date);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    const dow = localDate.getDay();
+    return dow >= 1 && dow <= 4;
+};
+exports.isValidWeekday = isValidWeekday;
+const getWeekdayErrorMessage = () => {
+    return "Solo se pueden agendar turnos de lunes a jueves.";
+};
+exports.getWeekdayErrorMessage = getWeekdayErrorMessage;
 //Convierte una fecha y hora en un timestamp para comparación
 const formatDateToString = (date) => {
     if (typeof date === 'string') {

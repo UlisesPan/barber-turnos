@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelTurnService = exports.createTurnService = exports.getTurnByIdService = exports.getAllTurnsService = void 0;
+exports.cancelTurnService = exports.createTurnService = exports.getTurnByIdService = exports.getTurnsByUserService = exports.getAllTurnsService = void 0;
 const mailerService_1 = require("./mailerService");
 const AppDataSources_1 = require("../config/AppDataSources");
 const appointmentValidation_1 = require("../utils/appointmentValidation");
@@ -18,6 +18,13 @@ const getAllTurnsService = () => __awaiter(void 0, void 0, void 0, function* () 
     return appointments;
 });
 exports.getAllTurnsService = getAllTurnsService;
+const getTurnsByUserService = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const appointments = yield AppDataSources_1.AppointmentModel.find({
+        where: { user: { id: userId } },
+    });
+    return appointments;
+});
+exports.getTurnsByUserService = getTurnsByUserService;
 const getTurnByIdService = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const appointment = yield AppDataSources_1.AppointmentModel.findOne({
         where: { id }
@@ -48,6 +55,9 @@ const createTurnService = (turnData) => __awaiter(void 0, void 0, void 0, functi
     today.setHours(0, 0, 0, 0);
     if (appointmentDate < today) {
         throw new Error("No se puede agendar un turno en una fecha pasada");
+    }
+    if (!(0, appointmentValidation_1.isValidWeekday)(turnData.date)) {
+        throw new Error((0, appointmentValidation_1.getWeekdayErrorMessage)());
     }
     if (!appointmentValidation_1.timeRegex.test(turnData.time)) {
         throw new Error((0, appointmentValidation_1.getTimeSlotErrorMessage)());

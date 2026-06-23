@@ -1,0 +1,347 @@
+.page {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 8rem 1.5rem 3rem;
+  gap: 2rem;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1.25rem;
+  background: var(--card-bg);
+  border-radius: 16px;
+  height: fit-content;
+  position: sticky;
+  top: 7rem;
+}
+
+.avatarWrapper {
+  position: relative;
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 0.5px solid var(--accent-color);
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-color);
+  color: #1a1512;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 1.25rem;
+}
+
+.avatarWrapper:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-color);
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+.badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  background: rgba(212, 175, 55, 0.12);
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 1rem;
+  gap: 0.25rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.navItem:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--accent-color);
+}
+
+.logoutBtn {
+  color: #c0392b;
+}
+
+.logoutBtn:hover {
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
+}
+
+/* ── MAIN ── */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.5px;
+}
+
+/* Spinner */
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.spinnerCircle {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(212, 175, 55, 0.2);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.errorMsg {
+  color: #c0392b;
+  padding: 1rem 1.25rem;
+  background: rgba(192, 57, 43, 0.1);
+  border-radius: 8px;
+}
+
+/* Estado vacío */
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+.createLink {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: opacity 0.2s;
+}
+
+.createLink:hover {
+  opacity: 0.75;
+}
+
+/* Turnos activos */
+.activeList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activeCard {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border-left: 3px solid var(--accent-color);
+}
+
+.cardIcon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  flex: 1;
+}
+
+.cardDate {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 0.2rem;
+}
+
+.cardService {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.cardClient {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  opacity: 0.85;
+  margin-top: 0.2rem;
+}
+
+.cancelBtn {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--accent-color);
+  background: transparent;
+  color: var(--accent-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: #1a1512;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Historial */
+.pastGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.pastCard {
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pastCard.cancelled {
+  opacity: 0.45;
+}
+
+.pastDate {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-color);
+  opacity: 0.55;
+}
+
+.pastService {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.statusBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+.badgeCancelled {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.badgeCompleted {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page {
+    grid-template-columns: 1fr;
+    padding-top: 6rem;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .pastGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .activeCard {
+    flex-wrap: wrap;
+  }
+
+  .cancelBtn {
+    width: 100%;
+  }
+}

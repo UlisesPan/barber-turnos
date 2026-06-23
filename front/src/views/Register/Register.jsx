@@ -1,175 +1,110 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styles from './Register.module.css';
+import { IconUser, IconMail, IconLock, IconEye, IconCalendar, IconId } from '../../components/Icons/Icons';
+import navajaImg from '../../assets/navaja-svg.webp';
+import useRegisterForm from './useFormRegister';
+
 
 const Register = () => {
-  const navigate = useNavigate();
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
-  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    // Validaciones
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:3001/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error en el registro');
-      }
-
-      setSuccess('¡Registro exitoso! Redirigiendo al login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+   const { formData, errors, showPassword, togglePassword, loading, error, success,
+          handleChange, handleBlur, handleSubmit} = useRegisterForm();
+   const FIELD_ORDER = ['name', 'email', 'birthdate', 'nDni', 'password'];
+   const firstErrorField = FIELD_ORDER.find((field) => errors[field]);
 
   return (
-    <div className={styles.registerContainer}>
-      <div className={styles.registerBox}>
-        <h1>CHACO BARBER</h1>
-        <p className={styles.subtitle}>Create Account</p>
-        <p className={styles.description}>
-          Join our community and book your appointments.
-        </p>
+    <div className={styles.registerPage}>
+      <div className={styles.registerCard}>
+        <div className={styles.cardHeader}>
+          <div className={styles.logoRow}>
+            <img src={navajaImg} alt="Chaco Barber" className={styles.logoImg} />
+            <div className={styles.logoText}>
+              <span className={styles.logoBrand1}>Chaco</span>
+              <span className={styles.logoBrand2}>Barber</span>
+            </div>
+          </div>
+          <h2 className={styles.formTitle}>Registro</h2>
+        </div>
 
         {error && <div className={styles.error}>{error}</div>}
         {success && <div className={styles.success}>{success}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className={styles.formGroup}>
-            <label>👤 FULL NAME</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              required
-            />
-          </div>
+  <div className={styles.inputWrapper}>
+    <span className={styles.inputIcon}><IconUser /></span>
+    <input id="name" type="text" name="name" value={formData.name}
+      onChange={handleChange} onBlur={handleBlur}
+      placeholder="Nombre Completo" aria-label="Nombre completo" required />
+  </div>
+  {firstErrorField === 'name' && (
+  <span className={styles.fieldError}>{errors.name}</span>
+)}
+</div>
 
-          <div className={styles.formGroup}>
-            <label>📧 EMAIL ADDRESS</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-            />
-          </div>
+{/* EMAIL */}
+<div className={styles.formGroup}>
+  <div className={styles.inputWrapper}>
+    <span className={styles.inputIcon}><IconMail /></span>
+    <input id="email" type="email" name="email" value={formData.email}
+      onChange={handleChange} onBlur={handleBlur}
+      placeholder="Correo Electrónico" aria-label="Email" required />
+  </div>
+{firstErrorField === 'email' && (
+  <span className={styles.fieldError}>{errors.email}</span>
+)}
+ </div>
+{/* FECHA */}
+<div className={styles.formGroup}>
+  <div className={styles.inputWrapper}>
+    <span className={styles.inputIcon}><IconCalendar /></span>
+    <input id="birthdate" type="date" name="birthdate" value={formData.birthdate}
+      onChange={handleChange} onBlur={handleBlur}
+      aria-label="Fecha de nacimiento" required />
+  </div>
+  {firstErrorField === 'birthdate' && (
+  <span className={styles.fieldError}>{errors.birthdate}</span>
+)}
+</div>
 
-          <div className={styles.formGroup}>
-            <label>📱 PHONE NUMBER</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="+1 (555) 000-0000"
-              required
-            />
-          </div>
+{/* DNI */}
+<div className={styles.formGroup}>
+  <div className={styles.inputWrapper}>
+    <span className={styles.inputIcon}><IconId /></span>
+    <input id="nDni" type="number" name="nDni" value={formData.nDni}
+      onChange={handleChange} onBlur={handleBlur}
+      placeholder="DNI" aria-label="DNI" required />
+  </div>
+  {firstErrorField === 'nDni' && (
+  <span className={styles.fieldError}>{errors.nDni}</span>
+)}
+</div>
 
-          <div className={styles.formGroup}>
-            <label>🔐 PASSWORD</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-          </div>
+{/* CONTRASEÑA */}
+<div className={styles.formGroup}>
+  <div className={styles.inputWrapper}>
+    <span className={styles.inputIcon}><IconLock /></span>
+    <input id="password" type={showPassword ? 'text' : 'password'}
+      name="password" value={formData.password}
+      onChange={handleChange} onBlur={handleBlur}
+      placeholder="Mínimo 6 caracteres" required />
+    <button type="button" className={styles.togglePassword}
+      onClick={togglePassword}
+      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
+      <IconEye open={showPassword} />
+    </button>
+  </div>
+  {firstErrorField === 'password' && (
+  <span className={styles.fieldError}>{errors.password}</span>
+)}
+</div>
 
-          <div className={styles.formGroup}>
-            <label>🔐 CONFIRM PASSWORD</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className={styles.registerBtn}
-            disabled={loading}
-          >
-            {loading ? 'Creando cuenta...' : 'CREATE ACCOUNT'}
+          <button type="submit" className={styles.registerBtn} disabled={loading}>
+            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
         </form>
 
         <div className={styles.loginLink}>
-          Already have an account? <a href="/login">Sign In</a>
-        </div>
-      </div>
-
-      {/* Lado decorativo */}
-      <div className={styles.decorative}>
-        <div className={styles.decorativeContent}>
-          <h2>✂️ CHACO BARBER</h2>
-          <p className={styles.decorativeSubtitle}>PRECISION PERSONIFIED</p>
-          <p>
-            Join our exclusive community. Every detail of your grooming journey
-            is carefully crafted for perfection.
-          </p>
+          ¿Ya tenés cuenta? <Link to="/login">Iniciar sesión</Link>
         </div>
       </div>
     </div>

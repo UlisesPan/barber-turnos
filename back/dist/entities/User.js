@@ -42,6 +42,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "profilePhoto", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['user', 'admin'], default: 'user' }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
     (0, typeorm_1.OneToOne)(() => Credentials_1.default, credential => credential.user, {
         eager: true, // ✅ Carga automática de las credenciales con cada usuario
         cascade: true // ✅ Permite crear/actualizar credenciales al crear/actualizar usuario

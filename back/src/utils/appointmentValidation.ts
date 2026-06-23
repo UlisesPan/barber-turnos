@@ -5,20 +5,32 @@ export const isValidTimeSlot = (time: string): boolean => {
 
     if (!regex.test(time)) return false;
 
-    const [hour] = time.split(':').map(Number);
+   const [hour, minute] = time.split(':').map(Number);
 
-  const isMorning = hour >= 8 && hour < 12;
+  const isMorning = hour >= 10 && hour < 13;
   const isAfternoon = hour >= 16 && hour < 20;
 
-  return isMorning || isAfternoon;
-};
+return (isMorning || isAfternoon) && (minute === 0 || minute === 30);
+}
 
-//Mensaje de error para horarios inválidos
 export const getTimeSlotErrorMessage = (): string => {
-    return "Los horarios válidos son de 8:00 AM a 12:00 PM o de 4:00 PM a 8:00 PM.";
+    return "Los horarios válidos son de 10:00 a 13:00 o de 16:00 a 20:00.";
 };
 
+// Usa la cadena YYYY-MM-DD para evitar problemas de zona horaria al construir la fecha
+export const isValidWeekday = (date: Date | string): boolean => {
+    const dateString = typeof date === 'string'
+        ? date.match(/^(\d{4}-\d{2}-\d{2})/)?.[1] ?? ''
+        : formatDateToString(date);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    const dow = localDate.getDay();
+    return dow >= 1 && dow <= 4;
+};
 
+export const getWeekdayErrorMessage = (): string => {
+    return "Solo se pueden agendar turnos de lunes a jueves.";
+};
 
 //Convierte una fecha y hora en un timestamp para comparación
 export const formatDateToString = (date: Date | string): string => {

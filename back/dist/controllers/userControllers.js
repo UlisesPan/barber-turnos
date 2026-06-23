@@ -8,10 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadProfilePhoto = exports.loginUser = exports.getUserById = exports.getUsers = exports.createUser = void 0;
 const userService_1 = require("../services/userService");
 const credentialsService_1 = require("../services/credentialsService");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const envs_1 = require("../config/envs");
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userData = req.body;
@@ -55,9 +60,11 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { username, password } = req.body;
         const credential = yield (0, credentialsService_1.validateCredentialsService)({ username, password });
         const user = yield (0, userService_1.getUserByCredentialsId)(credential.id);
+        const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, envs_1.JWT_SECRET, { expiresIn: '7d' });
         res.status(200).json({
-            message: "Login exitoso",
-            user: user
+            message: 'Login exitoso',
+            token,
+            user,
         });
     }
     catch (error) {

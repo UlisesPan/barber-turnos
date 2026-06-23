@@ -1,0 +1,193 @@
+/* ─── Paleta ─────────────────────────────────────────── */
+/* Background principal: #1a1109          */
+/* Card background:      #201408          */
+/* Card border:          #2e1d0a          */
+/* Texto principal:      #e8d5b0          */
+/* Texto secundario:     #8a7a60          */
+/* Acento/precio:        #c9a96e          */
+/* ─────────────────────────────────────────────────────── */
+
+.section {
+  background-color: var(--bg-color);
+  padding: 60px 24px 0;
+  min-height: 100vh;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* ── Título ──────────────────────────────────────────── */
+.title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #c9a96e;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.04em;
+  margin: 70px 0 40px;
+}
+
+/* ── Grid ────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── Card ─────────────────────────────────────────────── */
+.card {
+  background-color: #4f2b07;
+  border: 1px solid #2e1d0a;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.25s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: #c9a96e44;
+}
+
+/* ── Imagen ───────────────────────────────────────────── */
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 16 / 16;
+  overflow: hidden;
+  background-color: #120d05;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+  filter: brightness(0.88);
+}
+
+.card:hover .image {
+  transform: scale(1.03);
+  filter: brightness(1);
+}
+
+/* ── Cuerpo de la card ────────────────────────────────── */
+.cardBody {
+  padding: 12px 14px 14px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+
+.serviceName {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #c9a96e;
+  letter-spacing: 0.01em;
+}
+
+.price {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.description {
+  font-size: 0.78rem;
+  color: #8a7a60;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.duration {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #6b5d46;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* ── Banner final ─────────────────────────────────────── */
+.banner {
+  position: relative;
+  margin-top: 14px;
+  width: calc(100% + 48px);
+  margin-left: -24px;
+  height: 220px;
+  overflow: hidden;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: brightness(0.45);
+}
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(10, 6, 2, 0.75) 0%,
+    rgba(10, 6, 2, 0.2) 60%,
+    transparent 100%
+  );
+}
+
+.bannerContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px 32px;
+}
+
+.bannerTitle {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  margin: 0 0 4px;
+  letter-spacing: 0.01em;
+}
+
+.bannerSubtitle {
+  font-size: 0.82rem;
+  color: #c9a96e;
+  margin: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 560px) {
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .banner {
+    height: 180px;
+  }
+
+  .bannerTitle {
+    font-size: 1.3rem;
+  }
+}

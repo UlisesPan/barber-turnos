@@ -1,19 +1,30 @@
-.btnPremium {
-  background-color: var(--accent-color); /* Tu dorado */
-  color: var(--bg-color); /* En dark mode será oscuro, dando buen contraste */
-  border: 2px solid var(--accent-color);
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.switch {
+  display: flex;
+  align-items: center;
+  background: rgba(20, 16, 12, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 3px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 4px;
+  gap: 0;
+  transition: border-color 0.2s;
 }
 
-.btnPremium:hover {
-  background-color: transparent;
-  color: var(--accent-color);
+.switch:hover {
+  border-color: var(--accent-color);
 }
 
+.option {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  transition: background 0.75s ease;
+}
+
+.active {
+  background: var(--accent-color);
+}

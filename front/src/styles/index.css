@@ -2,18 +2,20 @@
 
 :root {
   /* Variables para el modo CLARO */
-  --bg-color: #ffffff;
+  --bg-color: #d8d4d4;
   --card-bg: #f0f0f0;
   --text-color: #000000;
-  --accent-color: #d4af37;
+  --accent-color: #be9c3f;
+  --bg-color-sec: #9c9999;
 }
 
 [data-theme='dark'] {
   /* Variables para el modo OSCURO */
-  --bg-color: #110f0f;
+  --bg-color: #080705;
   --card-bg: rgba(68, 68, 68);
   --text-color: #fcfcfc;
-  --accent-color: #d4af37;
+  --accent-color: #fcc40c;
+  --bg-color-sec:#070606;
 }
 
 * {

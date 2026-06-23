@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelAppointment = exports.createAppointment = exports.getAppointmentById = exports.getAllAppointments = void 0;
+exports.cancelAppointment = exports.getAppointmentsByUser = exports.createAppointment = exports.getAppointmentById = exports.getAllAppointments = void 0;
 const appointmentsService_1 = require("../services/appointmentsService");
 const getAllAppointments = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -62,6 +62,19 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.createAppointment = createAppointment;
+const getAppointmentsByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = parseInt(req.params.userId);
+        const appointments = yield (0, appointmentsService_1.getTurnsByUserService)(userId);
+        res.status(200).json(appointments);
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error instanceof Error ? error.message : "Error al obtener los turnos del usuario"
+        });
+    }
+});
+exports.getAppointmentsByUser = getAppointmentsByUser;
 const cancelAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = parseInt(req.params.id);
