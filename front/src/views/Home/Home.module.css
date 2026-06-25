@@ -91,7 +91,7 @@
 }
 
 .primaryBtn, .moreService {
-  
+  transform: translateY(0);
   color: #1a1512;
   padding: 0.9rem 2rem;
   border: 2px solid var(--accent-color);

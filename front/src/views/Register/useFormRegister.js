@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../../api/AxiosRegister';
+import { registerUser } from '../../services/authService';
 
 const validateField = (name, value) => {
   switch (name) {
     case 'name': {
       if (!value.trim())                          return 'El nombre es obligatorio';
       if (value.trim().length < 2)                return 'El nombre debe tener al menos 2 caracteres';
-      if (value.trim().length > 70)               return 'El nombre no puede superar los 70 caracteres';
+      if (value.trim().length > 40)               return 'El nombre no puede superar los 40 caracteres';
       if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(value))
                                                   return 'El nombre solo puede contener letras';
       return '';
@@ -87,10 +87,10 @@ const useRegisterForm = () => {
       password:  validateField('password',  formData.password),
     };
     setErrors(newErrors);
-
+ 
     // Si hay algún error, no continuar
     if (Object.values(newErrors).some((e) => e !== '')) return;
-
+    
     setLoading(true);
     try {
       await registerUser(formData);

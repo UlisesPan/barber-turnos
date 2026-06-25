@@ -1,5 +1,10 @@
 import { useEffect,useRef, useState, useContext } from "react";
-import axiosInstance from "../../api/axiosInstance";
+import {
+  getAllAppointments,
+  getUserAppointments,
+  cancelAppointment,
+} from "../../services/appointmentService";
+import { uploadPhoto } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/Auth/AuthContext";
 
@@ -12,30 +17,34 @@ const useAppointments = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancellingId, setCancellingId] = useState(null);
+  const [pendingCancelId, setPendingCancelId] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    const url = user.role === 'admin'
-      ? '/appointments'
-      : `/appointments/user/${user.id}`;
+    const request = user.role === 'admin'
+      ? getAllAppointments(token)
+      : getUserAppointments(user.id, token);
 
-    axiosInstance
-      .get(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    request
       .then((res) => setAppointments(res.data))
       .catch(() => setError('No se pudieron cargar los turnos.'))
       .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
-  const handleCancel = async (id) => {
+  // Abre el modal de confirmación para el turno seleccionado
+  const requestCancel = (id) => setPendingCancelId(id);
+  const dismissCancel = () => setPendingCancelId(null);
+
+  const confirmCancel = async () => {
+    const id = pendingCancelId;
+    setPendingCancelId(null);
     setCancellingId(id);
     try {
-      await axiosInstance.put(`/appointments/${id}/cancel`);
+      await cancelAppointment(id);
       setAppointments((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' } : a))
       );
@@ -49,11 +58,9 @@ const useAppointments = () => {
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append('photo', file);
     try {
-      const res = await axiosInstance.put(`/users/${user.id}/photo`, formData);
-      login({ ...user, profilePhoto: res.data.profilePhoto }, token);
+      const data = await uploadPhoto(user.id, file);
+      login({ ...user, profilePhoto: data.profilePhoto }, token);
     } catch {
       setError('No se pudo subir la foto.');
     }
@@ -78,7 +85,8 @@ const activeAppointments = appointments.filter((a) => a.status !== 'cancelled' &
 const pastAppointments   = appointments.filter((a) => a.status === 'cancelled'  ||  isPast(a));
 return {
   fileInputRef, loading, error, cancellingId,
-  handleCancel, handlePhotoUpload, getInitials,
+  pendingCancelId, requestCancel, dismissCancel, confirmCancel,
+  handlePhotoUpload, getInitials,
   activeAppointments, pastAppointments, navigate,
 };
 }

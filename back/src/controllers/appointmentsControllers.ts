@@ -90,9 +90,10 @@ export const cancelAppointment = async (req: Request, res: Response) => {
     try {
         const id: number = parseInt(req.params.id as string);
         const cancelledAppointment = await cancelTurnService(id);
-        res.status(200).json({ message: "Turno cancelado exitosamente", appointment: cancelledAppointment });
+        res.status(200).json({ message: "Turno cancelado exitosamente",
+             appointment: cancelledAppointment });
     }catch (error) {
-        res.status(500).json({ 
+        res.status(404).json({ 
             message: error instanceof Error ? error.message : "Error al cancelar el turno" 
         });
     }

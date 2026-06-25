@@ -2,6 +2,7 @@
 import styles from './ReserveAppointments.module.css';
 import { useReserveAppointments } from './useReserveHooks';
 import { useNavigate } from 'react-router-dom';
+import { IconScissor, IconPadlock, IconUnlock, IconCheck } from '../../components/Icons/Icons';
 // Horarios fijos del negocio. El backend también valida estos rangos.
 const MORNING_SLOTS = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30'];
 const AFTERNOON_SLOTS = ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'];
@@ -64,7 +65,7 @@ const  {
     return (
       <div className={styles.page}>
         <div className={styles.successScreen}>
-          <div className={styles.successIcon}>✓</div>
+          <div className={styles.successIcon}><IconCheck /></div>
           <h2 className={styles.successTitle}>¡Turno reservado!</h2>
           <p className={styles.successSub}>Te esperamos en la barbería.</p>
           <div className={styles.successDetails}>
@@ -110,7 +111,7 @@ const  {
               onClick={() => { if (step.num < currentStep) backstep(step.num); }}
               >
               {/* Si el paso ya se completó muestra ✓, si no muestra el número */}
-              <span className={styles.stepNum}>{currentStep > step.num ? '✓' : step.num}</span>
+              <span className={styles.stepNum}>{currentStep > step.num ? <IconCheck /> : step.num}</span>
               <span className={styles.stepLabel}>{step.label}</span>
             </div>
             {/* Línea conectora entre pasos (no va después del último) */}
@@ -132,19 +133,20 @@ const  {
           {currentStep === 1 && (
             <section>
               {/* El admin que agenda para un cliente debe elegirlo antes de avanzar */}
-              {isAdminBookMode && (
+             {isAdminBookMode && (
                 <div className={styles.clientSelect}>
                   <label className={styles.clientLabel}>Cliente</label>
                   <select
-                    className={styles.clientDropdown}
+                    className={styles.clientInput}
                     value={selectedClient?.id ?? ''}
-                    onChange={(e) =>
-                      setSelectedClient(clients.find((c) => c.id === Number(e.target.value)) ?? null)
-                    }
+                    onChange={(e) => {
+                      const client = clients.find((c) => c.id === Number(e.target.value));
+                      setSelectedClient(client ?? null);
+                    }}
                   >
-                    <option value="">Elegí un cliente…</option>
+                    <option value="">Seleccioná un cliente</option>
                     {clients.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name} — {c.email}</option>
+                      <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
                 </div>
@@ -163,7 +165,7 @@ const  {
                       <div className={styles.serviceImageWrapper}>
                         {service.image
                           ? <img src={service.image} alt={service.name} className={styles.serviceImage} />
-                          : <div className={styles.servicePlaceholder}>✂</div>}
+                          : <div className={styles.servicePlaceholder}><IconScissor /></div>}
                       </div>
                       <div className={styles.serviceInfo}>
                         <p className={styles.serviceName}>{service.name}</p>
@@ -195,7 +197,7 @@ const  {
       className={isDayBlocked ? styles.unblockDayBtn : styles.blockDayBtn}
       onClick={handleToggleBlockDay}
     >
-      {isDayBlocked ? '🔓 Desbloquear día' : '🔒 Bloquear día completo'}
+      {isDayBlocked ? <><IconUnlock /> Desbloquear día</> : <><IconPadlock /> Bloquear día completo</>}
     </button>
   )}
 </div>
@@ -256,7 +258,7 @@ const  {
                                         title={isTaken ? 'Turno reservado' : isBlocked ? 'Bloqueado — click para desbloquear' : 'Click para bloquear'}
                                       >
                                         {blockingSlot === time ? '...' : time}
-                                        {isBlocked && !isTaken && ' 🔒'}
+                                        {isBlocked && !isTaken && <IconPadlock className={styles.slotLockIcon} />}
                                       </button>
                                     );
                               }           
@@ -273,7 +275,7 @@ const  {
                             disabled={disabledSlots.includes(time)}
                             title={isTaken ? 'Turno ocupado' : isBlocked ? 'No disponible' : ''}
                           >
-                            {time}{isBlocked && !isTaken && ' 🔒'}
+                            {time}{isBlocked && !isTaken && <IconPadlock className={styles.slotLockIcon} />}
                           </button>
                         )})}
                       </div>
@@ -398,6 +400,7 @@ const  {
             )}
           </div>
         </aside>
+        
         )}
       </div>
     </div>

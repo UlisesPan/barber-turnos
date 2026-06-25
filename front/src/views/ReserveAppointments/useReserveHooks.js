@@ -1,6 +1,14 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
-import axiosInstance from "../../api/axiosInstance";
+import { getCategories } from "../../services/categoryService";
+import { getUsers } from "../../services/userService";
+import {
+  getAvailability,
+  scheduleAppointment,
+  getBlockedSlots,
+  blockSlot,
+  unblockSlot,
+} from "../../services/appointmentService";
 import AuthContext from '../../context/Auth/AuthContext';
 
 const generateCalendarDays = (year, month) => {
@@ -83,17 +91,17 @@ const todayStr =
  
   // Al montar, cargo los servicios desde /categories
   useEffect(() => {
-    axiosInstance.get('/categories')
+    getCategories()
     .then((res) => setServices(res.data))
     .catch(() => setError('No se pudieron cargar los servicios.'))
     .finally(() => setLoading(false));
   }, []);
 
-  // Si el admin entra a "Agendar turno", traigo la lista de clientes (no-admin) para elegir a quién
+  // Si el admin entra a "Agendar turno", traigo la lista de usuarios para elegir a quién agendarle
   useEffect(() => {
     if (!isAdminBookMode) return;
-    axiosInstance.get('/users')
-      .then((res) => setClients(res.data.filter((u) => u.role !== 'admin')))
+    getUsers()
+      .then((res) => setClients(res.data))
       .catch(() => setError('No se pudieron cargar los clientes.'));
   }, [isAdminBookMode]);
 
@@ -109,7 +117,7 @@ const todayStr =
   setSelectedDate(dateStr);
   setSelectedTime(null);
   try {
-    const res = await axiosInstance.get(`/appointments/available/${dateStr}`);
+    const res = await getAvailability(dateStr);
     setTakenSlots(res.data.takenSlots);
     setBlockedSlots(res.data.blockedSlots);
     setIsDayBlocked(res.data.isDayBlocked);
@@ -134,16 +142,12 @@ const todayStr =
   try {
     const isBlocked = blockedSlots.includes(time);
     if (isBlocked) {
-      const res = await axiosInstance.get(`/appointments/blocked/${selectedDate}`,
-        { headers: { Authorization: `Bearer ${token}` } });
+      const res = await getBlockedSlots(selectedDate, token);
       const entry = res.data.find(b => b.time === time);
-      if (entry) await axiosInstance.delete(`/appointments/block/${entry.id}`,
-        { headers: { Authorization: `Bearer ${token}` } });
+      if (entry) await unblockSlot(entry.id, token);
       setBlockedSlots(prev => prev.filter(s => s !== time));
     } else {
-      await axiosInstance.post('/appointments/block',
-        { date: selectedDate, time },
-        { headers: { Authorization: `Bearer ${token}` } });
+      await blockSlot(selectedDate, time, token);
       setBlockedSlots(prev => [...prev, time]);
       setSelectedTime(prev => prev === time ? null : prev);
     }
@@ -158,16 +162,12 @@ const handleToggleBlockDay = async () => {
   if (!selectedDate) return;
   try {
     if (isDayBlocked) {
-      const res = await axiosInstance.get(`/appointments/blocked/${selectedDate}`,
-        { headers: { Authorization: `Bearer ${token}` } });
+      const res = await getBlockedSlots(selectedDate, token);
       const entry = res.data.find(b => b.time === null);
-      if (entry) await axiosInstance.delete(`/appointments/block/${entry.id}`,
-        { headers: { Authorization: `Bearer ${token}` } });
+      if (entry) await unblockSlot(entry.id, token);
       setIsDayBlocked(false);
     } else {
-      await axiosInstance.post('/appointments/block',
-        { date: selectedDate, time: null },
-        { headers: { Authorization: `Bearer ${token}` } });
+      await blockSlot(selectedDate, null, token);
       setIsDayBlocked(true);
       setSelectedTime(null);
     }
@@ -180,14 +180,11 @@ const handleToggleBlockDay = async () => {
   const handleConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
     // Si el admin agenda para otro, el turno necesita un cliente elegido
-    if (isAdminBookMode && !selectedClient) {
-      setError('Elegí un cliente para agendar el turno.');
-      return;
-    }
+    
     setSubmitting(true);
     setError('');
     try {
-      const res = await axiosInstance.post('/appointments/schedule', {
+      const res = await scheduleAppointment({
         userId: isAdminBookMode ? selectedClient.id : user.id,
         serviceId: selectedService.id,
         date: selectedDate,

@@ -64,7 +64,7 @@ export const loginUser = async (req: Request, res: Response) => {
         });
         
     } catch (error) {
-        res.status(401).json({
+        res.status(400).json({
             message: error instanceof Error ? error.message : "Credenciales inválidas"
         });
     }

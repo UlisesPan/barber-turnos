@@ -1,19 +1,9 @@
 import styles from "./Servicios.module.css";
-import { useState, useEffect } from "react";
-import axiosInstance from "../../api/axiosInstance";
-
-
-
+import useServicios from "./useServicios";
 
 const Servicios = () => {
+  const { services } = useServicios();
 
-  const[services, setServices] = useState([])
-
-useEffect(() => {
-  axiosInstance.get('/categories')
-    .then((response) => setServices(response.data))
-    .catch((error) => console.error('Error al cargar servicios:', error))
-}, [])
   return (
     <div>
         <section className={styles.section}>

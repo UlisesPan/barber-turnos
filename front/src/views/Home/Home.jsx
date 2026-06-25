@@ -48,7 +48,7 @@ const Home = () => {
 
       <section className={styles.stats}>
        <div className={styles.statsImage}>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDinZaBOIqhxgcvPJd4TTa2g6PHG4LZ7NB1LTnjrZd9zC0Z4aDSVNgIoTpiiG2EndFWf92woWtHvCsF1IRD-urmH-aaQsWm7qAZALLvjFCMN92k-D1nH1WuAv1qtAqFbENAXTEGiO4vzkZto_4b_9dQuPAQJieBWqSgU0lTPLeK8uv2mydZam_J5vFyhDQCYEh0UNCR0mM-cZc_-UbubNCwg07TIO1ELmhOZAGtW-QnptcwjixkpY7clpaJ1xhT6PRBN96C5DGjC0E" alt="IMG" />
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDinZaBOIqhxgcvPJd4TTa2g6PHG4LZ7NB1LTnjrZd9zC0Z4aDSVNgIoTpiiG2EndFWf92woWtHvCsF1IRD-urmH-aaQsWm7qAZALLvjFCMN92k-D1nH1WuAv1qtAqFbENAXTEGiO4vzkZto_4b_9dQuPAQJieBWqSgU0lTPLeK8uv2mydZam_J5vFyhDQCYEh0UNCR0mM-cZc_-UbubNCwg07TIO1ELmhOZAGtW-QnptcwjixkpY7clpaJ1xhT6PRBN96C5DGjC0E" alt="IMG" loading="lazy"/>
        </div>
  <div className={styles.statsContent}>
     <h2 className={styles.statsTitle}>Excellent Work<br />Since 2019</h2>

@@ -9,6 +9,8 @@ import Register from './views/Register/Register.jsx';
 import Servicios from './views/Servicios/Servicios.jsx';
 import MyAppointments from './views/MyAppointments/MyAppointments.jsx';
 import ReserveAppointments from './views/ReserveAppointments/ReserveAppointments.jsx';
+import Contact from './views/Contact/Contact.jsx';
+import Footer from './components/Footer/Footer.jsx';
 function AppContent() {
 
 
@@ -24,8 +26,11 @@ function AppContent() {
         <Route path="/reserve" element={< ReserveAppointments/>} />
         <Route path="/servicios" element={<Servicios />} />
         <Route path="/turnos" element={<MyAppointments />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      <Footer/>
     </>
   );
 }

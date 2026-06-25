@@ -11,6 +11,9 @@ const Register = () => {
    const FIELD_ORDER = ['name', 'email', 'birthdate', 'nDni', 'password'];
    const firstErrorField = FIELD_ORDER.find((field) => errors[field]);
 
+    const DeshabilitarScroll = (e) => {
+    e.target.blur();
+    };
   return (
     <div className={styles.registerPage}>
       <div className={styles.registerCard}>
@@ -72,7 +75,9 @@ const Register = () => {
     <span className={styles.inputIcon}><IconId /></span>
     <input id="nDni" type="number" name="nDni" value={formData.nDni}
       onChange={handleChange} onBlur={handleBlur}
-      placeholder="DNI" aria-label="DNI" required />
+      placeholder="DNI" aria-label="DNI" required
+      onWheel={DeshabilitarScroll}
+       />
   </div>
   {firstErrorField === 'nDni' && (
   <span className={styles.fieldError}>{errors.nDni}</span>

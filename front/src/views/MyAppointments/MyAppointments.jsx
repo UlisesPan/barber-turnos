@@ -1,8 +1,10 @@
 import styles from './MyAppointments.module.css';
 import useAppointments from './useAppointmentsHooks';
-import AuthContext from '../../context/Auth/AuthContext.jsx'
+import AuthContext from '../../context/Auth/AuthContext.jsx';
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { IconPadlock, IconCalendar, IconLogOut, IconScissor, IconUser, IconCameraW } from '../../components/Icons/Icons.jsx';
 
 const formatDate = (dateStr) => {
   const [year, month, day] = (dateStr.split('T')[0]).split('-').map(Number);
@@ -11,10 +13,14 @@ const formatDate = (dateStr) => {
 };
 
 const MyAppointments = () => {
-    const { user,  logout} = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
-    const { fileInputRef, loading, error, cancellingId, handleCancel, handlePhotoUpload,
-       getInitials,activeAppointments, pastAppointments, navigate } = useAppointments()
+  const {
+    fileInputRef, loading, error, cancellingId,
+    pendingCancelId, requestCancel, dismissCancel, confirmCancel,
+    handlePhotoUpload, getInitials,
+    activeAppointments, pastAppointments, navigate,
+  } = useAppointments();
 
   return (
     <div className={styles.page}>
@@ -34,7 +40,7 @@ const MyAppointments = () => {
           ) : (
             <span className={styles.avatarInitials}>{getInitials()}</span>
           )}
-          <div className={styles.avatarOverlay}>📷</div>
+          <div className={styles.avatarOverlay}><IconCameraW /></div>
         </div>
         <input
           ref={fileInputRef}
@@ -48,33 +54,33 @@ const MyAppointments = () => {
         <span className={styles.badge}>{user?.role === 'admin' ? 'ADMIN' : 'CLIENTE'}</span>
 
         <nav className={styles.sideNav}>
-  {user?.role === 'admin' ? (
-    <>
-      <button
-        className={styles.navItem}
-        onClick={() => navigate('/reserve', { state: { adminMode: 'book' } })}
-      >
-        ✂️ Agendar turno
-      </button>
-      <button
-        className={styles.navItem}
-        onClick={() => navigate('/reserve', { state: { adminMode: 'block' } })}
-      >
-        🔒 Bloquear agenda
-      </button>
-    </>
-  ) : (
-    <Link to="/reserve" className={styles.navItem}>
-      ✂️ Reservar turno
-    </Link>
-  )}
-  <button
-    className={`${styles.navItem} ${styles.logoutBtn}`}
-    onClick={() => { logout(); navigate('/'); }}
-  >
-    🚪 Cerrar sesión
-  </button>
-</nav>
+          {user?.role === 'admin' ? (
+            <>
+              <button
+                className={styles.navItem}
+                onClick={() => navigate('/reserve', { state: { adminMode: 'book' } })}
+              >
+                <IconScissor/> Agendar turno
+              </button>
+              <button
+                className={styles.navItem}
+                onClick={() => navigate('/reserve', { state: { adminMode: 'block' } })}
+              >
+                <IconPadlock/> Bloquear agenda
+              </button>
+            </>
+          ) : (
+            <Link to="/reserve" className={styles.navItem}>
+               <IconScissor/> Reservar turno
+            </Link>
+          )}
+          <button
+            className={`${styles.navItem} ${styles.logoutBtn}`}
+            onClick={() => { logout(); navigate('/'); }}
+          >
+            <IconLogOut/> Cerrar sesión
+          </button>
+        </nav>
       </aside>
 
       {/* CONTENIDO PRINCIPAL */}
@@ -101,19 +107,21 @@ const MyAppointments = () => {
                 <div className={styles.activeList}>
                   {activeAppointments.map((a) => (
                     <div key={a.id} className={styles.activeCard}>
-                      <div className={styles.cardIcon}>📅</div>
+                      <div className={styles.cardIcon}>
+                        <IconCalendar/>
+                      </div>
                       <div className={styles.cardInfo}>
                         <p className={styles.cardDate}>
                           {formatDate(a.date)} — {a.time} hs
                         </p>
                         <p className={styles.cardService}>{a.category?.name}</p>
                         {user?.role === 'admin' && a.user?.name && (
-                          <p className={styles.cardClient}>👤 {a.user.name}</p>
+                          <p className={styles.cardClient}><IconUser/> {a.user.name}</p>
                         )}
                       </div>
                       <button
                         className={styles.cancelBtn}
-                        onClick={() => handleCancel(a.id)}
+                        onClick={() => requestCancel(a.id)}
                         disabled={cancellingId === a.id}
                       >
                         {cancellingId === a.id ? 'Cancelando...' : 'Cancelar'}
@@ -136,7 +144,7 @@ const MyAppointments = () => {
                       <p className={styles.pastDate}>{formatDate(a.date)}</p>
                       <p className={styles.pastService}>{a.category?.name}</p>
                       <span className={`${styles.statusBadge} ${a.status === 'cancelled' ? styles.badgeCancelled : styles.badgeCompleted}`}>
-                      {a.status === 'cancelled' ? 'Cancelado' : 'Completado'}
+                        {a.status === 'cancelled' ? 'Cancelado' : 'Completado'}
                       </span>
                     </div>
                   ))}
@@ -146,6 +154,18 @@ const MyAppointments = () => {
           </>
         )}
       </main>
+
+      {/* MODAL DE CONFIRMACIÓN DE CANCELACIÓN */}
+      <ConfirmModal
+        isOpen={!!pendingCancelId}
+        title="¿Cancelar turno?"
+        message="Esta acción no se puede deshacer. El turno quedará marcado como cancelado."
+        confirmText="Sí, cancelar"
+        cancelText="Volver"
+        danger
+        onConfirm={confirmCancel}
+        onCancel={dismissCancel}
+      />
     </div>
   );
 };

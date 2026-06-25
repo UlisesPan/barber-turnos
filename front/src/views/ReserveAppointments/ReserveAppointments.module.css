@@ -76,6 +76,11 @@
 }
 .stepLineDone { background: rgba(232, 149, 58, 0.4); }
 
+.stepNum svg {
+  width: 13px;
+  height: 13px;
+}
+
 /* ERROR */
 .errorMsg {
   background: rgba(220,38,38,0.12);
@@ -124,6 +129,24 @@
 }
 .backBtn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
+.unblockDayBtn, .blockDayBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+  background-color: var(--bg-color);
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.unblockDayBtn svg, .blockDayBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* SERVICES GRID */
 .servicesGrid { display: flex; flex-direction: column; gap: 0.75rem; }
 .serviceCard {
@@ -132,7 +155,7 @@
   gap: 1rem;
   padding: 1rem 1.25rem;
   background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 0.1px solid #6e6e6e;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -151,7 +174,16 @@
   justify-content: center;
 }
 .serviceImage { width: 100%; height: 100%; object-fit: cover; }
-.servicePlaceholder { font-size: 1.4rem; }
+.servicePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--accent-color);
+  opacity: 0.5;
+}
+
+.servicePlaceholder svg { width: 28px; height: 28px; }
 .serviceInfo { flex: 1; }
 .serviceName { font-size: 0.95rem; font-weight: 600; color: var(--text-color); margin: 0 0 0.2rem; }
 .serviceDuration { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
@@ -229,7 +261,7 @@
 }
 .dayCell:hover:not(:disabled) { background: rgba(232,149,58,0.15); color: var(--accent-color); }
 .dayCellEmpty { visibility: hidden; pointer-events: none; }
-.dayCellDisabled { color: rgba(255,255,255,0.15); cursor: default; text-decoration: line-through; }
+.dayCellDisabled { color: #6e6e6e; cursor: default; text-decoration: line-through; }
 .dayCellSelected { background: var(--accent-color) !important; color: #1a1512 !important; font-weight: 700; }
 
 /* TIME SLOTS */
@@ -251,6 +283,17 @@
   font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.slotLockIcon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 .slotBtn:hover:not(:disabled) { border-color: var(--accent-color); color: var(--accent-color); background: rgba(232,149,58,0.08); }
 .slotTaken { background: rgba(255,255,255,0.02) !important; color: rgba(255,255,255,0.2) !important; cursor: default; border-color: transparent !important; text-decoration: line-through; }
@@ -260,16 +303,23 @@
 /* SELECTOR DE CLIENTE (admin agendando para otro) */
 .clientSelect { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
 .clientLabel { font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
-.clientDropdown {
-  padding: 0.6rem 0.8rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.12);
+.clientInput {
+  padding: 0.6rem 2.2rem 0.6rem 0.8rem;
+  background-color: rgba(255,255,255,0.03);
+  border: 1px solid var(--text-color);
   border-radius: 8px;
   color: var(--text-color);
   font-size: 0.9rem;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 0.85rem;
 }
-.clientDropdown:focus { outline: none; border-color: var(--accent-color); }
+.clientInput:focus { outline: none; border-color: var(--accent-color); }
+.clientInput option { background: var(--card-bg); color: var(--text-color); }
 
 /* CONFIRM CARD */
 .confirmCard {
@@ -362,11 +412,15 @@
   background: rgba(232,149,58,0.15);
   border: 2px solid var(--accent-color);
   color: var(--accent-color);
-  font-size: 1.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
+}
+
+.successIcon svg {
+  width: 28px;
+  height: 28px;
 }
 .successTitle { font-size: 1.5rem; font-weight: 700; color: var(--text-color); margin: 0 0 0.4rem; }
 .successSub { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 2rem; }

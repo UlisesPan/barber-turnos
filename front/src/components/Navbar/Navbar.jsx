@@ -1,15 +1,16 @@
 import { useState, useContext, useRef } from 'react';
-import { uploadPhoto } from '../../api/AxiosRegister.js';
+import { uploadPhoto } from '../../services/userService';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import AuthContext from '../../context/Auth/AuthContext.jsx';
 import ThemeToggle from '../ButtonThemeToggle/ThemeToggle.jsx'
-import logoBarber from '../../../public/Logo-barber.png'
+import logoBarber from '/Logo-barber.png'
+import { IconLogOut, IconCameraW } from '../Icons/Icons.jsx';
 const NAV_LINKS = [
   { label: 'Inicio', href: '/' },
   { label: 'Servicios', href: '/servicios' },
   { label: 'Turnos', href: '/turnos' },
-  { label: 'Contacto', href: '#contact' },
+  { label: 'Contacto', href: '/contact' },
 ];
 
 const Navbar = () => {
@@ -125,7 +126,8 @@ const Navbar = () => {
     className={styles.dropdownItem}
     onClick={() => fileInputRef.current?.click()}
   >
-    📷 Cambiar foto de perfil
+    <IconCameraW />
+   Cambiar foto de perfil
   </button>
   <input
     ref={fileInputRef}
@@ -135,7 +137,8 @@ const Navbar = () => {
     onChange={handlePhotoUpload}
   />
   <button className={styles.dropdownItem} onClick={handleLogout}>
-    🚪 Cerrar Sesión
+  <IconLogOut />
+     Cerrar Sesión
   </button>
 </div>
               )}
