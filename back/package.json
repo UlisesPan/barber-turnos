@@ -13,20 +13,18 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
-    "@types/multer": "^2.1.0",
-    "@types/node": "^25.9.0",
-    "@types/nodemailer": "^8.0.0",
-    "morgan": "^1.10.1",
-    "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
-  },
-  "dependencies": {
+    "@types/multer": "^2.2.0",
+    "@types/node": "^25.9.4",
+    "@types/nodemailer": "^8.0.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -34,11 +32,13 @@
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.9",
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^1.0.0",
+    "typescript": "^6.0.3",
     "zod": "^4.4.3"
   }
 }
