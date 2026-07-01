@@ -58,7 +58,7 @@ export const registerUserService = async (userData: IUserDto): Promise<User> => 
         birthdate: formatDate(userData.birthdate),
         nDni: userData.nDni || 0,
         credentials: newCredential,
-      
+        role: 'user',
     });
     const savedUser = await UserModel.save(newUser);
     return savedUser;

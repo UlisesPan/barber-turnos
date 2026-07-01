@@ -1,12 +1,16 @@
+import 'reflect-metadata';
 import server from './server';
 import { PORT } from './config/envs';
 import { AppDataSource } from './config/AppDataSources';
-import { Entity } from "typeorm";
-import reflectMetadata from "reflect-metadata";
+
 AppDataSource.initialize()
-  .then(() => {
-    console.log('Data Source has been initialized!');
-    server.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
+    .then(() => {
+        console.log('Base de datos conectada.');
+        server.listen(PORT, () => {
+            console.log(`Servidor escuchando en el puerto ${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.error('Error al conectar la base de datos:', err);
+        process.exit(1);
     });
-  })

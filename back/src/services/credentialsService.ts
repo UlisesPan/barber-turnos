@@ -39,12 +39,12 @@ export const validateCredentialsService = async (credential: ICredentialsDto): P
     });
     
     if (!foundCredential) {
-        throw new Error("Credenciales no encontradas");
+        throw new Error("Usuario o contraseña incorrectos");
     }
-    
+
     const isPasswordValid = await comparePassword(credential.password, foundCredential.password);
     if (!isPasswordValid) {
-        throw new Error("Contraseña incorrecta");
+        throw new Error("Usuario o contraseña incorrectos");
     }
     
     return foundCredential

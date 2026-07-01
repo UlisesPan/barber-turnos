@@ -55,6 +55,22 @@ export const createCategoryService = async (categoryData: ICreateCategoryDto): P
     return savedCategory;
 }
 
+export const updateCategoryPriceService = async (id: number, price: number): Promise<Category> => {
+  if (!id || id <= 0) {
+    throw new Error("ID debe ser un número válido");
+  }
+
+  if (price === undefined || price === null || price <= 0) {
+    throw new Error("El precio debe ser mayor a 0");
+  }
+
+  const category = await ServiceModel.findOne({ where: { id } });
+  if (!category) throw new Error("Categoría no encontrada");
+
+  category.price = price;
+  return await ServiceModel.save(category);
+};
+
 export const deleteCategoryService = async (id: number): Promise<void> => {
   const category = await ServiceModel.findOne({ where: { id } });
 

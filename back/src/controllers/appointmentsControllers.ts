@@ -25,12 +25,18 @@ export const getAllAppointments = async (req: Request, res: Response) => {
 
 export const getAppointmentById = async (req: Request, res: Response) => {
     try {
-        const id: number = parseInt(req.params.id as string);
-        const appointmentData = await getTurnByIdService(id); // Aquí deberías implementar la lógica para obtener un turno por su ID
+        const id = parseInt(String(req.params.id), 10);
+        if (isNaN(id)) { res.status(400).json({ message: 'ID inválido' }); return; }
+        const appointmentData = await getTurnByIdService(id);
+        const requestingUser = res.locals.user;
+        if (requestingUser.role !== 'admin' && appointmentData.user?.id !== requestingUser.id) {
+            res.status(403).json({ message: 'No tienes permiso para ver este turno' });
+            return;
+        }
         res.status(200).json(appointmentData);
     }catch (error) {
-        res.status(500).json({ 
-            message: error instanceof Error ? error.message : "Error al obtener el turno" 
+        res.status(500).json({
+            message: error instanceof Error ? error.message : "Error al obtener el turno"
         });
     }
 }
@@ -38,33 +44,40 @@ export const getAppointmentById = async (req: Request, res: Response) => {
 export const createAppointment = async (req: Request, res: Response) => {
     try {
         const appointmentData: Omit<CreateAppointmentDto, 'id'> = req.body;
-        
-        // Validar que userId está presente en el request
+
         if (!appointmentData.userId) {
-            res.status(400).json({ 
-                message: "El ID del usuario es requerido" 
-            });
+            res.status(400).json({ message: "El ID del usuario es requerido" });
             return;
         }
         if (!appointmentData.serviceId) {
-            res.status(400).json({ 
-                message: "El ID del servicio es requerido"
-            });
+            res.status(400).json({ message: "El ID del servicio es requerido" });
             return;
         }
 
-        const newAppointment = await createTurnService(appointmentData); // Aquí deberías implementar la lógica para crear un nuevo turno
+        const requestingUser = res.locals.user;
+        if (requestingUser.role !== 'admin' && requestingUser.id !== appointmentData.userId) {
+            res.status(403).json({ message: 'No puedes crear turnos para otro usuario' });
+            return;
+        }
+
+        const newAppointment = await createTurnService(appointmentData);
         res.status(201).json(newAppointment);
     }catch (error) {
-        res.status(500).json({ 
-            message: error instanceof Error ? error.message : "Error al crear el turno" 
+        res.status(500).json({
+            message: error instanceof Error ? error.message : "Error al crear el turno"
         });
     }
 }
 
 export const getAppointmentsByUser = async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.userId as string);
+        const userId = parseInt(String(req.params.userId), 10);
+        if (isNaN(userId)) { res.status(400).json({ message: 'ID inválido' }); return; }
+        const requestingUser = res.locals.user;
+        if (requestingUser.role !== 'admin' && requestingUser.id !== userId) {
+            res.status(403).json({ message: 'No tienes permiso para ver los turnos de otro usuario' });
+            return;
+        }
         const appointments = await getTurnsByUserService(userId);
         res.status(200).json(appointments);
     } catch (error) {
@@ -88,13 +101,21 @@ export const getAvailableSlots = async (req: Request, res: Response) => {
 
 export const cancelAppointment = async (req: Request, res: Response) => {
     try {
-        const id: number = parseInt(req.params.id as string);
+        const id = parseInt(String(req.params.id), 10);
+        if (isNaN(id)) { res.status(400).json({ message: 'ID inválido' }); return; }
+        const requestingUser = res.locals.user;
+
+        const appointment = await getTurnByIdService(id);
+        if (requestingUser.role !== 'admin' && appointment.user?.id !== requestingUser.id) {
+            res.status(403).json({ message: 'No tienes permiso para cancelar este turno' });
+            return;
+        }
+
         const cancelledAppointment = await cancelTurnService(id);
-        res.status(200).json({ message: "Turno cancelado exitosamente",
-             appointment: cancelledAppointment });
+        res.status(200).json({ message: "Turno cancelado exitosamente", appointment: cancelledAppointment });
     }catch (error) {
-        res.status(404).json({ 
-            message: error instanceof Error ? error.message : "Error al cancelar el turno" 
+        res.status(404).json({
+            message: error instanceof Error ? error.message : "Error al cancelar el turno"
         });
     }
 }
@@ -113,7 +134,8 @@ export const blockSlot = async (req: Request, res: Response) => {
 
 export const unblockSlot = async (req: Request, res: Response) => {
   try {
-    const id = parseInt(req.params.id as string);
+    const id = parseInt(String(req.params.id), 10);
+    if (isNaN(id)) { res.status(400).json({ message: 'ID inválido' }); return; }
     await unblockSlotService(id);
     res.status(200).json({ message: "Slot desbloqueado" });
   } catch (error) {

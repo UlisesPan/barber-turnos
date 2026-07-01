@@ -10,6 +10,7 @@ import {
   unblockSlot,
 } from "../../services/appointmentService";
 import AuthContext from '../../context/Auth/AuthContext';
+import { ALL_SLOTS } from './slots';
 
 const generateCalendarDays = (year, month) => {
   const today = new Date();
@@ -40,12 +41,13 @@ const generateCalendarDays = (year, month) => {
 
 export const useReserveAppointments = () => {
   const { user, isAuthenticated, token } = useContext(AuthContext);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const location = useLocation();
   // 'book' = agendar turno · 'block' = bloquear agenda. Lo manda MyAppointments en location.state.
   const adminMode = location.state?.adminMode ?? 'book';
   const isAdmin = user?.role === 'admin';
   const isAdminBookMode = isAdmin && adminMode === 'book'; // admin agendando para un cliente
+  const isAdminBlockMode = isAdmin && adminMode === 'block';
 
   const [services, setServices] = useState([]);          // Lista de servicios del backend
   const [selectedService, setSelectedService] = useState(null);
@@ -59,42 +61,40 @@ export const useReserveAppointments = () => {
   const [submitting, setSubmitting] = useState(false);  // Evita doble click en confirmar
   const [success, setSuccess] = useState(null);         // Datos del turno confirmado (null = no confirmado aún)
   const [error, setError] = useState('');
-  const [blockedSlots, setBlockedSlots] = useState([]);
+  const [blockedSlots, setBlockedSlots] = useState([]); // Array de objetos { id, time }
   const [isDayBlocked, setIsDayBlocked] = useState(false);
   const [blockingSlot, setBlockingSlot] = useState(null); // slot que se está procesando
   // Solo se usan cuando el admin agenda para otro: lista de clientes y el elegido
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
 
-  const ALL_SLOTS = ['10:00','10:30','11:00','11:30','12:00','12:30',
-                   '16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30'];
   const now = new Date();
-const todayStr =
- `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
- 
- const pastSlotsToday = selectedDate === todayStr
- ? ALL_SLOTS.filter((slot) => {
-   const [h, m] = slot.split(':').map(Number);
-   const slotTime = new Date();
-   slotTime.setHours(h, m, 0, 0);
-   return slotTime <= now;
-  })
-  : [];
-  
+  const todayStr =
+    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  const pastSlotsToday = selectedDate === todayStr
+    ? ALL_SLOTS.filter((slot) => {
+        const [h, m] = slot.split(':').map(Number);
+        const slotTime = new Date();
+        slotTime.setHours(h, m, 0, 0);
+        return slotTime <= now;
+      })
+    : [];
+
   // Set para RESERVAR: un slot no se puede reservar si está ocupado, es pasado, está bloqueado,
   // o el día entero está bloqueado. Lo usan el usuario normal y el admin en modo "agendar".
   const disabledSlots = [...new Set([...takenSlots, ...pastSlotsToday,
-    ...(isDayBlocked ? ALL_SLOTS : blockedSlots),])];
+    ...(isDayBlocked ? ALL_SLOTS : blockedSlots.map(b => b.time)),])];
   // Set SOLO de horarios pasados. Lo usa el modo bloqueo para no dejar (des)bloquear el pasado,
   // sin confundir "bloqueado" con "pasado" (si no, el admin no podría desbloquear un slot).
   const pastSlots = pastSlotsToday;
- 
+
   // Al montar, cargo los servicios desde /categories
   useEffect(() => {
     getCategories()
-    .then((res) => setServices(res.data))
-    .catch(() => setError('No se pudieron cargar los servicios.'))
-    .finally(() => setLoading(false));
+      .then((res) => setServices(res.data))
+      .catch(() => setError('No se pudieron cargar los servicios.'))
+      .finally(() => setLoading(false));
   }, []);
 
   // Si el admin entra a "Agendar turno", traigo la lista de usuarios para elegir a quién agendarle
@@ -105,82 +105,92 @@ const todayStr =
       .catch(() => setError('No se pudieron cargar los clientes.'));
   }, [isAdminBookMode]);
 
-
-    // Cuando el usuario elige un servicio, guardo la selección y avanzo automáticamente al paso 2
+  // Cuando el usuario elige un servicio, guardo la selección y avanzo automáticamente al paso 2
   const handleServiceSelect = (service) => {
     setSelectedService(service);
     setCurrentStep(2);
   };
 
-    // Cuando elige una fecha, pido al backend qué horarios ya están tomados para ese día
+  // Normaliza la respuesta de blockedSlots a objetos { id, time } sin importar si el
+  // endpoint devuelve strings o ya devuelve objetos completos.
+  const normalizeBlockedSlots = (raw) =>
+    (raw ?? []).map(s => (typeof s === 'string' ? { id: null, time: s } : s));
+
+  // Cuando elige una fecha, pido al backend qué horarios ya están tomados para ese día
   const handleDateSelect = async (dateStr) => {
-  setSelectedDate(dateStr);
-  setSelectedTime(null);
-  try {
-    const res = await getAvailability(dateStr);
-    setTakenSlots(res.data.takenSlots);
-    setBlockedSlots(res.data.blockedSlots);
-    setIsDayBlocked(res.data.isDayBlocked);
-  } catch {
-    setTakenSlots([]);
-    setBlockedSlots([]);
-    setIsDayBlocked(false);
-  }
-};
-    const handleTimeSelect = (time) => {
+    setSelectedDate(dateStr);
+    setSelectedTime(null);
+    try {
+      const res = await getAvailability(dateStr);
+      setTakenSlots(res.data.takenSlots);
+      setBlockedSlots(normalizeBlockedSlots(res.data.blockedSlots));
+      setIsDayBlocked(res.data.isDayBlocked);
+    } catch {
+      setTakenSlots([]);
+      setBlockedSlots([]);
+      setIsDayBlocked(false);
+    }
+  };
+
+  const handleTimeSelect = (time) => {
     setSelectedTime(time);
   };
 
-    // El botón "Continuar" del panel derecho va al paso 3 (o manda al login si no está autenticado)
+  // El botón "Continuar" del panel derecho va al paso 3 (o manda al login si no está autenticado)
   const handleGoToConfirm = () => {
     if (!isAuthenticated) { navigate('/login'); return; }
     setCurrentStep(3);
   };
-  const handleToggleBlockSlot = async (time) => {
-  if (!selectedDate) return;
-  setBlockingSlot(time);
-  try {
-    const isBlocked = blockedSlots.includes(time);
-    if (isBlocked) {
-      const res = await getBlockedSlots(selectedDate, token);
-      const entry = res.data.find(b => b.time === time);
-      if (entry) await unblockSlot(entry.id, token);
-      setBlockedSlots(prev => prev.filter(s => s !== time));
-    } else {
-      await blockSlot(selectedDate, time, token);
-      setBlockedSlots(prev => [...prev, time]);
-      setSelectedTime(prev => prev === time ? null : prev);
-    }
-  } catch {
-    setError('No se pudo actualizar el bloqueo.');
-  } finally {
-    setBlockingSlot(null);
-  }
-};
 
-const handleToggleBlockDay = async () => {
-  if (!selectedDate) return;
-  try {
-    if (isDayBlocked) {
-      const res = await getBlockedSlots(selectedDate, token);
-      const entry = res.data.find(b => b.time === null);
-      if (entry) await unblockSlot(entry.id, token);
-      setIsDayBlocked(false);
-    } else {
-      await blockSlot(selectedDate, null, token);
-      setIsDayBlocked(true);
-      setSelectedTime(null);
+  const handleToggleBlockSlot = async (time) => {
+    if (!selectedDate) return;
+    setBlockingSlot(time);
+    try {
+      const isBlocked = blockedSlots.some(b => b.time === time);
+      if (isBlocked) {
+        let entry = blockedSlots.find(b => b.time === time);
+        // Si el id es null (vino como string de getAvailability), lo buscamos con el endpoint admin
+        if (!entry?.id) {
+          const fetchRes = await getBlockedSlots(selectedDate, token);
+          entry = fetchRes.data.find(b => b.time === time);
+        }
+        if (entry) await unblockSlot(entry.id, token);
+        setBlockedSlots(prev => prev.filter(b => b.time !== time));
+      } else {
+        const res = await blockSlot(selectedDate, time, token);
+        // Usamos el objeto devuelto por la API si tiene la forma esperada; sino guardamos solo el time
+        const newEntry = res?.data?.time ? res.data : { id: null, time };
+        setBlockedSlots(prev => [...prev, newEntry]);
+        setSelectedTime(prev => prev === time ? null : prev);
+      }
+    } catch {
+      setError('No se pudo actualizar el bloqueo.');
+    } finally {
+      setBlockingSlot(null);
     }
-  } catch {
-    setError('No se pudo actualizar el bloqueo del día.');
-  }
-};
-  
+  };
+
+  const handleToggleBlockDay = async () => {
+    if (!selectedDate) return;
+    try {
+      if (isDayBlocked) {
+        const res = await getBlockedSlots(selectedDate, token);
+        const entry = res.data.find(b => b.time === null);
+        if (entry) await unblockSlot(entry.id, token);
+        setIsDayBlocked(false);
+      } else {
+        await blockSlot(selectedDate, null, token);
+        setIsDayBlocked(true);
+        setSelectedTime(null);
+      }
+    } catch {
+      setError('No se pudo actualizar el bloqueo del día.');
+    }
+  };
+
   // Llamada real a la API para crear el turno
   const handleConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
-    // Si el admin agenda para otro, el turno necesita un cliente elegido
-    
     setSubmitting(true);
     setError('');
     try {
@@ -201,7 +211,7 @@ const handleToggleBlockDay = async () => {
     }
   };
 
-   // Navegación entre meses. No permite ir a meses anteriores al actual.
+  // Navegación entre meses. No permite ir a meses anteriores al actual.
   const prevMonth = () => {
     const today = new Date();
     const prev = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
@@ -211,14 +221,14 @@ const handleToggleBlockDay = async () => {
       setSelectedTime(null);
     }
   };
-  
+
   const nextMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
     setSelectedDate(null);
     setSelectedTime(null);
   };
 
-   const year = currentMonth.getFullYear();
+  const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const calendarDays = generateCalendarDays(year, month);
   const today = new Date();
@@ -229,11 +239,12 @@ const handleToggleBlockDay = async () => {
     user,
     adminMode,
     isAdminBookMode,
+    isAdminBlockMode,
     clients,
     selectedClient,
     setSelectedClient,
-      backstep: () => setCurrentStep((prev) => Math.max(1, prev - 1)),
-      goToStep: (n) => setCurrentStep(n),
+    backstep: (step) => step != null ? setCurrentStep(step) : setCurrentStep((prev) => Math.max(1, prev - 1)),
+    goToStep: (n) => setCurrentStep(n),
     services,
     selectedService,
     currentStep,
@@ -256,8 +267,10 @@ const handleToggleBlockDay = async () => {
     calendarDays,
     isCurrentMonth,
     takenSlots,
-    blockedSlots, isDayBlocked, blockingSlot,
-    handleToggleBlockSlot, handleToggleBlockDay,
-  }
-  
-}
+    blockedSlots,
+    isDayBlocked,
+    blockingSlot,
+    handleToggleBlockSlot,
+    handleToggleBlockDay,
+  };
+};

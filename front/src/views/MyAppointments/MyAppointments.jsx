@@ -4,7 +4,7 @@ import AuthContext from '../../context/Auth/AuthContext.jsx';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { IconPadlock, IconCalendar, IconLogOut, IconScissor, IconUser, IconCameraW } from '../../components/Icons/Icons.jsx';
+import { IconPadlock, IconCalendar, IconLogOut, IconScissor, IconUser, IconCameraW, IconPriceTag } from '../../components/Icons/Icons.jsx';
 
 const formatDate = (dateStr) => {
   const [year, month, day] = (dateStr.split('T')[0]).split('-').map(Number);
@@ -67,6 +67,12 @@ const MyAppointments = () => {
                 onClick={() => navigate('/reserve', { state: { adminMode: 'block' } })}
               >
                 <IconPadlock/> Bloquear agenda
+              </button>
+              <button
+                className={styles.navItem}
+                onClick={() => navigate('/servicios/gestionar')}
+              >
+                <IconPriceTag/> Gestionar precios
               </button>
             </>
           ) : (

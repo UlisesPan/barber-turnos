@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import {} from '../entities/Appointments';
-import { EMAIL_PASS, EMAIL_USER } from '../config/envs';
+import { EMAIL_PASS, EMAIL_USER, OWNER_EMAIL } from '../config/envs';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -29,12 +29,32 @@ export const sendTurnConfirmation = async (
     }
   };
    const template = templates[tipo];
-   
+
   if (!template) return;
   await transporter.sendMail({
     from: EMAIL_USER,
     to: toEmail,
     subject: template.asunto,
     html: `<p>${template.mensaje}</p>`,
+  });
+};
+
+// Aviso al dueño/barbero cada vez que le reservan un turno, con los datos del turno.
+export const sendNewAppointmentNotification = async (
+  details: { clientName: string; serviceName: string; date: string; time: string }
+): Promise<void> => {
+  // Si no hay mail del dueño configurado, no hacemos nada (igual que el guard de arriba)
+  if (!OWNER_EMAIL) return;
+  await transporter.sendMail({
+    from: EMAIL_USER,
+    to: OWNER_EMAIL,
+    subject: '📅 Nuevo turno reservado',
+    html: `
+      <h2>Te reservaron un turno</h2>
+      <p><strong>Cliente:</strong> ${details.clientName}</p>
+      <p><strong>Servicio:</strong> ${details.serviceName}</p>
+      <p><strong>Fecha:</strong> ${details.date}</p>
+      <p><strong>Hora:</strong> ${details.time} hs</p>
+    `,
   });
 };

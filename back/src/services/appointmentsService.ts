@@ -1,6 +1,6 @@
 import { IsNull } from 'typeorm';
 import {  CreateAppointmentDto } from '../interfaces/IAppointments';
-import {sendTurnConfirmation} from './mailerService';
+import {sendTurnConfirmation, sendNewAppointmentNotification} from './mailerService';
 import Appointment from '../entities/Appointments';
 import { AppointmentModel, ServiceModel, UserModel, BlockedSlotModel } from '../config/AppDataSources';
 import { isValidTimeSlot,
@@ -123,6 +123,19 @@ if (blockEntries.length > 0) {
     await sendTurnConfirmation(user.email, 'active');
   } catch (emailError) {
     console.warn("⚠️ Error al enviar email:", emailError);
+  }
+
+  // Aviso al dueño/barbero de que le sacaron un turno. En su propio try/catch
+  // para que un fallo de mail nunca tumbe la creación del turno.
+  try {
+    await sendNewAppointmentNotification({
+      clientName: user.name,
+      serviceName: service.name,
+      date: turnData.date,
+      time: turnData.time,
+    });
+  } catch (emailError) {
+    console.warn("⚠️ Error al enviar aviso al dueño:", emailError);
   }
     return savedAppointment;
 };

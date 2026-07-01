@@ -89,6 +89,16 @@ export const IconPadlock = () => (
 )
 
 
+// Etiqueta de precio: para la gestión de precios (admin)
+export const IconPriceTag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L3 13V3h10z" />
+    <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
+    <path d="M13.5 9.5c-.4-.5-1-.8-1.6-.8c-.9 0-1.6.6-1.6 1.3s.7 1.1 1.6 1.3s1.6.6 1.6 1.3s-.7 1.3-1.6 1.3c-.6 0-1.2-.3-1.6-.8" />
+  </svg>
+);
+
 //ICONOS DE VIEW CONTACT
 export const LocationIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
