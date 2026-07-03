@@ -119,24 +119,18 @@ if (blockEntries.length > 0) {
 
     const savedAppointment = await AppointmentModel.save(newAppointment);
 
-   try {
-    await sendTurnConfirmation(user.email, 'active');
-  } catch (emailError) {
-    console.warn("⚠️ Error al enviar email:", emailError);
-  }
+    // Sin await: los mails se mandan en background para no bloquear la respuesta
+    // al front si el SMTP tarda o se cuelga (el turno ya quedó guardado igual).
+    sendTurnConfirmation(user.email, 'active')
+      .catch((emailError) => console.warn("⚠️ Error al enviar email:", emailError));
 
-  // Aviso al dueño/barbero de que le sacaron un turno. En su propio try/catch
-  // para que un fallo de mail nunca tumbe la creación del turno.
-  try {
-    await sendNewAppointmentNotification({
+    sendNewAppointmentNotification({
       clientName: user.name,
       serviceName: service.name,
       date: turnData.date,
       time: turnData.time,
-    });
-  } catch (emailError) {
-    console.warn("⚠️ Error al enviar aviso al dueño:", emailError);
-  }
+    }).catch((emailError) => console.warn("⚠️ Error al enviar aviso al dueño:", emailError));
+
     return savedAppointment;
 };
 
@@ -159,12 +153,9 @@ export const cancelTurnService = async (id: number): Promise<Appointment> => {
   appointment.status = 'cancelled';
   const updatedAppointment = await AppointmentModel.save(appointment);
 
-  // Enviar email de cancelación
-   try {
-    await sendTurnConfirmation(appointment.user.email, 'cancelled');
-  } catch (emailError) {
-    console.warn("⚠️ Error al enviar email de cancelación:", emailError);
-  }
+  // Sin await, mismo motivo que en createTurnService.
+  sendTurnConfirmation(appointment.user.email, 'cancelled')
+    .catch((emailError) => console.warn("⚠️ Error al enviar email de cancelación:", emailError));
 
   return updatedAppointment;
 };

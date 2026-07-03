@@ -240,7 +240,7 @@ const ReserveAppointments = () => {
                 </h2>
                 <button
                   className={styles.backBtn}
-                  onClick={isAdminBlockMode ? () => navigate('/turnos') : backstep}
+                  onClick={isAdminBlockMode ? () => navigate('/turnos') : () => backstep()}
                 >
                   ← Volver
                 </button>
@@ -326,7 +326,7 @@ const ReserveAppointments = () => {
             <section>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Confirmá tu turno</h2>
-                <button className={styles.backBtn} onClick={backstep}>← Volver</button>
+                <button className={styles.backBtn} onClick={() => backstep()}>← Volver</button>
               </div>
               <div className={styles.confirmCard}>
                 <div className={styles.confirmRow}><span>Servicio</span><strong>{selectedService?.name}</strong></div>
