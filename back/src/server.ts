@@ -19,6 +19,12 @@ server.use(
 );
 server.use(express.json());
 server.use(morgan('dev'));
+
+// Endpoint liviano para servicios de keep-alive (no toca la DB).
+server.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 server.use(router);
 
 export default server;

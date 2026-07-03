@@ -13,6 +13,7 @@ export const AppDataSource = new DataSource({
     username: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     synchronize: process.env.NODE_ENV !== 'production' || process.env.DB_SYNC === 'true',
     // dropSchema: true,
     logging: false,
