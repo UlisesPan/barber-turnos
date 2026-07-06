@@ -51,7 +51,7 @@ const Home = () => {
         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDinZaBOIqhxgcvPJd4TTa2g6PHG4LZ7NB1LTnjrZd9zC0Z4aDSVNgIoTpiiG2EndFWf92woWtHvCsF1IRD-urmH-aaQsWm7qAZALLvjFCMN92k-D1nH1WuAv1qtAqFbENAXTEGiO4vzkZto_4b_9dQuPAQJieBWqSgU0lTPLeK8uv2mydZam_J5vFyhDQCYEh0UNCR0mM-cZc_-UbubNCwg07TIO1ELmhOZAGtW-QnptcwjixkpY7clpaJ1xhT6PRBN96C5DGjC0E" alt="IMG" loading="lazy"/>
        </div>
  <div className={styles.statsContent}>
-    <h2 className={styles.statsTitle}>Excellent Work<br />Since 2019</h2>
+    <h2 className={styles.statsTitle}>Trabajos Excelentes<br />Desde 2020</h2>
     <p className={styles.statsText}>
       En nuestra barberia somos especialistas en lo que hacemos.
       Sabemos que un buen corte no es solo pasar la máquina; es entender
@@ -73,7 +73,7 @@ const Home = () => {
 </section>
 
       <section id="services" className={styles.services}>
-        <p className={styles.sectionEyebrow}>Nuestro menu</p>
+        <p className={styles.sectionEyebrow}>Nuestros servicios</p>
         <h2>Ofertas a medida</h2>
         <div className={styles.servicesList}>
           <div className={styles.serviceRow}>
