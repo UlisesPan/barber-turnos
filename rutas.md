@@ -78,7 +78,7 @@
    }
    ```
 
-### GET /turns/:id
+### GET /appoinments/:id
 
 - **Descripción:** Obtiene el detalle de un turno.
 
@@ -88,7 +88,7 @@
   - 200: Si el turno fue encontrado.
   - 404: Si el turno no fue encontrado.
 
-### POST /turns/schedule
+### POST /appoinments/schedule
 
 - **Descripción:** Crea un nuevo turno.
 - **Parámetros:**
@@ -100,7 +100,7 @@
     - 201: Si el turno fue creado.
     - 400: Si los datos son incorrectos.
 
-### PUT /turns/cancel/:id
+### PUT /appoinments/cancel/:id
 
 - **Descripción:** Cancela un turno.
 - **Parámetros:** id: id del turno.
@@ -109,7 +109,7 @@
   - 200: Si el turno fue cancelado.
   - 404: Si el turno no fue encontrado.
 
-### GET /turns
+### GET /appoinments
 
 - **Descripción:** Obtiene todos los turnos.
 
