@@ -1,17 +1,25 @@
-import { useEffect,useRef, useState, useContext } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getAllAppointments,
   getUserAppointments,
   cancelAppointment,
 } from "../../services/appointmentService";
-import { uploadPhoto } from "../../services/userService";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context/Auth/AuthContext";
+import { useAuth } from "../../context/Auth/AuthContext";
+import { apiErrorMessage } from "../../api/axiosInstance";
+import { parseLocalDate } from "../../utils/format";
 
+const isPast = (a, now) => {
+  const date = parseLocalDate(a.date);
+  const [h, min] = a.time.split(':').map(Number);
+  date.setHours(h, min, 0, 0);
+  return date <= now;
+};
+
+// La ruta está protegida (ProtectedRoute): acá siempre hay usuario
 const useAppointments = () => {
-    const { user, token, isAuthenticated, login } = useContext(AuthContext);
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
 
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,22 +28,13 @@ const useAppointments = () => {
   const [pendingCancelId, setPendingCancelId] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    const request = user.role === 'admin'
-      ? getAllAppointments(token)
-      : getUserAppointments(user.id, token);
-
+    const request = isAdmin ? getAllAppointments() : getUserAppointments(user.id);
     request
       .then((res) => setAppointments(res.data))
       .catch(() => setError('No se pudieron cargar los turnos.'))
       .finally(() => setLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAdmin, user.id]);
 
-  // Abre el modal de confirmación para el turno seleccionado
   const requestCancel = (id) => setPendingCancelId(id);
   const dismissCancel = () => setPendingCancelId(null);
 
@@ -45,50 +44,28 @@ const useAppointments = () => {
     setCancellingId(id);
     try {
       await cancelAppointment(id);
-      setAppointments((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' } : a))
-      );
-    } catch {
-      setError('No se pudo cancelar el turno.');
+      setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' } : a)));
+    } catch (err) {
+      setError(apiErrorMessage(err, 'No se pudo cancelar el turno.'));
     } finally {
       setCancellingId(null);
     }
   };
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const data = await uploadPhoto(user.id, file);
-      login({ ...user, profilePhoto: data.profilePhoto }, token);
-    } catch {
-      setError('No se pudo subir la foto.');
-    }
-  };
-
-  const getInitials = () =>
-    user?.name
-      ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
-      : 'U';
-
   const now = new Date();
+  // Próximos: el más cercano primero. Historial: el más reciente primero.
+  const activeAppointments = appointments
+    .filter((a) => a.status === 'active' && !isPast(a, now))
+    .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+  const pastAppointments = appointments
+    .filter((a) => a.status !== 'active' || isPast(a, now))
+    .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
 
-const isPast = (a) => {
-  const [y, m, d] = (a.date.split('T')[0]).split('-').map(Number);
-  const apptDate = new Date(y, m - 1, d);
-  const [h, min] = a.time.split(':').map(Number);
-  apptDate.setHours(h, min, 0, 0);
-  return apptDate <= now;
+  return {
+    loading, error, cancellingId,
+    pendingCancelId, requestCancel, dismissCancel, confirmCancel,
+    activeAppointments, pastAppointments, navigate,
+  };
 };
 
-const activeAppointments = appointments.filter((a) => a.status !== 'cancelled' && !isPast(a));
-const pastAppointments   = appointments.filter((a) => a.status === 'cancelled'  ||  isPast(a));
-return {
-  fileInputRef, loading, error, cancellingId,
-  pendingCancelId, requestCancel, dismissCancel, confirmCancel,
-  handlePhotoUpload, getInitials,
-  activeAppointments, pastAppointments, navigate,
-};
-}
-
-export default useAppointments
+export default useAppointments;

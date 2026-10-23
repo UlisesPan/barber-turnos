@@ -1,82 +1,35 @@
-import {Category} from "../entities/Category";
-import {ServiceModel} from "../config/AppDataSources";
-import {ICategory, ICreateCategoryDto} from "../interfaces/ICategory";
+import { Category } from "../entities/Category";
+import { CategoryModel } from "../config/AppDataSources";
+import { ICreateCategoryDto } from "../interfaces/ICategory";
+import { conflict, notFound } from "../utils/HttpError";
 
-export const getAllCategoriesService = async (): Promise<Category[]> => {
-    
-    const categories = await ServiceModel.find({});
-    
-    if (!categories) return [];
-    return categories;
-}
+export const getAllCategoriesService = (): Promise<Category[]> =>
+    CategoryModel.find({ order: { price: 'ASC' } });
 
 export const getCategoryByIdService = async (id: number): Promise<Category> => {
-    if (!id || id <= 0) {
-    throw new Error("ID debe ser un número válido");
-    }
-    const category = await ServiceModel.findOne({
-        where: { id }
-    });
-    if (!category) throw new Error("Categoría no encontrada");
+    const category = await CategoryModel.findOne({ where: { id } });
+    if (!category) throw notFound("Categoría no encontrada");
     return category;
-}
+};
 
-export const createCategoryService = async (categoryData: ICreateCategoryDto): Promise<Category> => {
- 
-  if (!categoryData.name || categoryData.name.trim() === "") {
-    throw new Error("El nombre de la categoría es requerido");
-  }
-
-  
-  if (!categoryData.duration || categoryData.duration <= 0) {
-    throw new Error("La duración debe ser mayor a 0");
-  }
-
- 
-  if (!categoryData.price || categoryData.price <= 0) {
-    throw new Error("El precio debe ser mayor a 0");
-  }
-
-  // Validar que no exista una categoría con ese nombre
-  const existingCategory = await ServiceModel.findOne({
-    where: { name: categoryData.name.trim() },
-  });
-
-  if (existingCategory) {
-    throw new Error("Ya existe una categoría con ese nombre");
-  }
-
-  const newCategory = ServiceModel.create({
-    name: categoryData.name.trim(),
-    duration: categoryData.duration,
-    price: categoryData.price,
-  });
-    const savedCategory = await ServiceModel.save(newCategory);
-    return savedCategory;
-}
+export const createCategoryService = async (data: ICreateCategoryDto): Promise<Category> => {
+    const existing = await CategoryModel.findOne({ where: { name: data.name } });
+    if (existing) throw conflict("Ya existe una categoría con ese nombre");
+    return CategoryModel.save(CategoryModel.create(data));
+};
 
 export const updateCategoryPriceService = async (id: number, price: number): Promise<Category> => {
-  if (!id || id <= 0) {
-    throw new Error("ID debe ser un número válido");
-  }
-
-  if (price === undefined || price === null || price <= 0) {
-    throw new Error("El precio debe ser mayor a 0");
-  }
-
-  const category = await ServiceModel.findOne({ where: { id } });
-  if (!category) throw new Error("Categoría no encontrada");
-
-  category.price = price;
-  return await ServiceModel.save(category);
+    const category = await getCategoryByIdService(id);
+    category.price = price;
+    return CategoryModel.save(category);
 };
 
 export const deleteCategoryService = async (id: number): Promise<void> => {
-  const category = await ServiceModel.findOne({ where: { id } });
-
-  if (!category) {
-    throw new Error("Categoría no encontrada");
-  }
-
-  await ServiceModel.remove(category);
+    const category = await getCategoryByIdService(id);
+    try {
+        await CategoryModel.remove(category);
+    } catch {
+        // FK RESTRICT: hay turnos que usan esta categoría
+        throw conflict("No se puede eliminar: hay turnos asociados a este servicio");
+    }
 };

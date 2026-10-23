@@ -49,7 +49,7 @@ background-color: #141414; /* Fondo oscuro de la tarjeta */
 .logoBrand1 {
   font-size: 2rem;
   font-weight: 400;
-  color: #f5f0e8;
+  color: var(--cream);
   letter-spacing: 1px;
 }
 
@@ -64,13 +64,13 @@ background-color: #141414; /* Fondo oscuro de la tarjeta */
 .formTitle {
   font-size: 1.7rem;
   font-weight: 500;
-  color: #f5f0e8;
+  color: var(--cream);
   letter-spacing: 1px;
   margin: 0;
 }
 
 .fieldError {
-  color: #ef4444;
+  color: var(--danger);
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -106,7 +106,7 @@ form {
 .inputIcon {
   position: absolute;
   left: 0.9rem;
-  color: #fcc40c;
+  color: var(--gold);
   opacity: 0.6;
   pointer-events: none;
   display: flex;
@@ -116,10 +116,10 @@ form {
 .inputWrapper input {
   width: 100%;
   background-color: #1a1410;
-  border: 1px solid #fcc40c;
+  border: 1px solid var(--gold);
   border-radius: 15px;
   padding: 0.85rem 2.75rem 0.85rem 2.5rem;
-  color: #f5f0e8;
+  color: var(--cream);
   font-size: 1rem;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
@@ -140,7 +140,7 @@ form {
   right: 0.75rem;
   background: none;
   border: none;
-  color: #fcc40c;
+  color: var(--gold);
   opacity: 0.6;
   cursor: pointer;
   display: flex;
@@ -155,7 +155,7 @@ form {
 
 .registerBtn {
   background-color: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
   padding: 0.95rem;
   border: none;
   border-radius: 15px;
@@ -171,7 +171,7 @@ form {
 
 .loginLink {
   text-align: center;
-  color: #ffff;
+  color: #fff;
   font-size: 0.82rem;
   margin-top: 1.75rem;
 }

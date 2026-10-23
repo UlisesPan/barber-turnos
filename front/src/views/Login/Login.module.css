@@ -51,7 +51,7 @@
   font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
-  color: #f5f0e8;
+  color: var(--cream);
   margin: 0 0 0.4rem;
   letter-spacing: 3px;
 }
@@ -86,19 +86,19 @@
   font-family: var(--font-display);
   font-size: 1.65rem;
   font-weight: 700;
-  color: #f5f0e8;
+  color: var(--cream);
   margin: 0 0 0.4rem;
 }
 
 .description {
-  color: #ffff;
+  color: #fff;
   margin-bottom: 2rem;
   font-size: 0.85rem;
 }
 
 .error {
   background-color: rgba(220, 38, 38, 0.15);
-  color: #ef4444;
+  color: var(--danger);
   border: 1px solid rgba(220, 38, 38, 0.3);
   padding: 0.85rem 1rem;
   border-radius: var(--border-radius);
@@ -115,7 +115,7 @@ form {
 .formGroup {
   display: flex;
   flex-direction: column;
-  color: #ffff;
+  color: #fff;
 }
 
 .labelRow {
@@ -126,7 +126,7 @@ form {
 }
 
 .formGroup label {
-  color: #ffff;
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -134,7 +134,7 @@ form {
 }
 
 .forgotLink {
-  color: #ffff;
+  color: #fff;
   text-decoration: none;
   font-size: 0.7rem;
   font-weight: 500;
@@ -154,7 +154,7 @@ form {
 .inputIcon {
   position: absolute;
   left: 0.9rem;
-  color: #ffff;
+  color: #fff;
   opacity: 0.6;
   pointer-events: none;
   display: flex;
@@ -167,13 +167,13 @@ form {
   border: 1px solid rgba(168, 149, 128, 0.2);
   border-radius: var(--border-radius);
   padding: 0.85rem 2.75rem 0.85rem 2.5rem;
-  color: #ffff;
+  color: #fff;
   font-size: 0.88rem;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .inputWrapper input::placeholder {
-  color: #ffff;
+  color: #fff;
   opacity: 0.5;
 }
 
@@ -188,7 +188,7 @@ form {
   right: 0.75rem;
   background: none;
   border: none;
-  color: #ffff;
+  color: #fff;
   opacity: 0.6;
   cursor: pointer;
   display: flex;
@@ -203,7 +203,7 @@ form {
 
 .loginBtn {
   background-color: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
   padding: 0.95rem;
   border: none;
   border-radius: var(--border-radius);
@@ -225,7 +225,7 @@ form {
 
 .registerLink {
   text-align: center;
-  color: #ffff;
+  color: #fff;
   font-size: 0.82rem;
   margin-top: 1.75rem;
 }

@@ -1,24 +1,20 @@
 import styles from './MyAppointments.module.css';
 import useAppointments from './useAppointmentsHooks';
-import AuthContext from '../../context/Auth/AuthContext.jsx';
+import { useAuth } from '../../context/Auth/AuthContext';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
-import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { IconPadlock, IconCalendar, IconLogOut, IconScissor, IconUser, IconCameraW, IconPriceTag } from '../../components/Icons/Icons.jsx';
-
-const formatDate = (dateStr) => {
-  const [year, month, day] = (dateStr.split('T')[0]).split('-').map(Number);
-  const date = new Date(year, month - 1, day);
-  return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-};
+import useProfilePhotoUpload from '../../hooks/useProfilePhotoUpload';
+import { photoUrl } from '../../api/axiosInstance';
+import { formatLongDate as formatDate, getInitials } from '../../utils/format';
 
 const MyAppointments = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
+  const { fileInputRef, openPicker, handleFileChange, uploading, uploadError } = useProfilePhotoUpload();
 
   const {
-    fileInputRef, loading, error, cancellingId,
+    loading, error, cancellingId,
     pendingCancelId, requestCancel, dismissCancel, confirmCancel,
-    handlePhotoUpload, getInitials,
     activeAppointments, pastAppointments, navigate,
   } = useAppointments();
 
@@ -26,29 +22,30 @@ const MyAppointments = () => {
     <div className={styles.page}>
       {/* SIDEBAR */}
       <aside className={styles.sidebar}>
-        <div
+        <button
+          type="button"
           className={styles.avatarWrapper}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={openPicker}
+          disabled={uploading}
+          aria-label="Cambiar foto de perfil"
           title="Cambiar foto de perfil"
+          style={{ border: 'none', padding: 0, font: 'inherit' }}
         >
           {user?.profilePhoto ? (
-            <img
-              src={`${import.meta.env.VITE_API_URL}/uploads/${user.profilePhoto}`}
-              alt={user.name}
-              className={styles.avatarImg}
-            />
+            <img src={photoUrl(user.profilePhoto)} alt="" className={styles.avatarImg} />
           ) : (
-            <span className={styles.avatarInitials}>{getInitials()}</span>
+            <span className={styles.avatarInitials}>{getInitials(user?.name)}</span>
           )}
           <div className={styles.avatarOverlay}><IconCameraW /></div>
-        </div>
+        </button>
         <input
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
           className={styles.hiddenInput}
-          onChange={handlePhotoUpload}
+          onChange={handleFileChange}
         />
+        {uploadError && <p className={styles.errorMsg} role="alert">{uploadError}</p>}
 
         <p className={styles.userName}>{user?.name}</p>
         <span className={styles.badge}>{user?.role === 'admin' ? 'ADMIN' : 'CLIENTE'}</span>
@@ -90,14 +87,14 @@ const MyAppointments = () => {
       </aside>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className={styles.main}>
+      <div className={styles.main}>
         {loading ? (
           <div className={styles.spinner}>
             <div className={styles.spinnerCircle} />
             <p>Cargando tus turnos...</p>
           </div>
         ) : error ? (
-          <p className={styles.errorMsg}>{error}</p>
+          <p className={styles.errorMsg} role="alert">{error}</p>
         ) : (
           <>
             <section>
@@ -159,7 +156,7 @@ const MyAppointments = () => {
             )}
           </>
         )}
-      </main>
+      </div>
 
       {/* MODAL DE CONFIRMACIÓN DE CANCELACIÓN */}
       <ConfirmModal

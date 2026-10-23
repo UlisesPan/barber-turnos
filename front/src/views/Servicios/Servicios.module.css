@@ -3,13 +3,13 @@
   background-color: var(--bg-color);
   padding: 60px 24px 0;
   min-height: 100vh;
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font-serif);
 }
 
 /* ── Título ──────────────────────────────────────────── */
 .title {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  color: #c9a96e;
+  font-family: var(--font-serif);
+  color: var(--gold-soft);
   font-size: 2rem;
   font-weight: 600;
   text-align: center;
@@ -75,18 +75,18 @@
 }
 
 .serviceName {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: 1.05rem;
   font-weight: 600;
-  color: #c9a96e;
+  color: var(--gold-soft);
   letter-spacing: 0.01em;
 }
 
 .price {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: 1rem;
   font-weight: 600;
-  color: #e8d5b0;
+  color: var(--sand);
   white-space: nowrap;
   margin-left: 8px;
 }
@@ -96,7 +96,7 @@
   color: #8a7a60;
   margin: 0 0 8px;
   line-height: 1.4;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .duration {
@@ -105,7 +105,7 @@
   gap: 5px;
   font-size: 0.72rem;
   color: #6b5d46;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0.05em;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .bannerTitle {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: 1.65rem;
   font-weight: 700;
   color: var(--text-color);
@@ -159,7 +159,7 @@
   font-size: 0.82rem;
   color: #b17b16;
   margin: 0;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0.04em;
 }
 

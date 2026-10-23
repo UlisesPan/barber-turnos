@@ -76,7 +76,7 @@
   transform: translateX(-50%);
   width: 18px;
   height: 2px;
-  background-color: #fcc40c;
+  background-color: var(--gold);
   border-radius: 2px;
 }
 
@@ -88,8 +88,8 @@
 }
 
 .loginBtn {
-  color: #1a1512;
-  background-color: #fcc40c;
+  color: var(--ink);
+  background-color: var(--gold);
   padding: 0.45rem 1.2rem;
   border: 1px solid var(--accent-color);
   border-radius: 999px;
@@ -104,13 +104,13 @@
 
 .loginBtn:hover {
   background: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
 }
 
 .bookBtn {
   padding: 0.55rem 1.4rem;
   background-color: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -135,8 +135,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 2px solid #fcc40c;
-  background-color: #fcc40c;
+  border: 2px solid var(--gold);
+  background-color: var(--gold);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -157,7 +157,7 @@
 }
 
 .avatarInitials {
-  color: #1a1512;
+  color: var(--ink);
   font-weight: 600;
   font-size: 0.7rem;
 }
@@ -198,7 +198,7 @@
 
 .dropdownHeader strong {
   display: block;
-  color: #f5f0e8;
+  color: var(--cream);
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -258,7 +258,7 @@
 }
 
 .dropdownItem:hover {
-  color: #f5f0e8;
+  color: var(--cream);
   background-color: rgba(252, 196, 12, 0.07);
   padding-left: 1.55rem;
 }
@@ -272,12 +272,12 @@
 }
 
 .dropdownItem:last-of-type:hover {
-  color: #f08080;
+  color: var(--danger-soft);
   background-color: rgba(220, 80, 80, 0.07);
 }
 
 .dropdownItem:last-of-type:hover::before {
-  background: #f08080;
+  background: var(--danger-soft);
 }
 
 .hamburger {
@@ -285,7 +285,7 @@
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: #f5f0e8;
+  color: var(--cream);
   cursor: pointer;
   justify-self: end;
 }

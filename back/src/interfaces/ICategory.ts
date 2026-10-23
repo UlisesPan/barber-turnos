@@ -3,6 +3,7 @@ export interface ICategory {
     name: string;
     duration: number;
     price: number;
+    image?: string;
 }
 
-export interface ICreateCategoryDto extends Omit<ICategory, 'id'> {}
+export type ICreateCategoryDto = Omit<ICategory, 'id'>;

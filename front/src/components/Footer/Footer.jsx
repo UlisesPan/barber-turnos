@@ -1,12 +1,7 @@
 import { Link } from 'react-router-dom';
-import { InstagramIcon, WhatsappIcon, FacebookIcon } from '../Icons/Icons';
+import { InstagramIcon, WhatsappIcon } from '../Icons/Icons';
+import { BUSINESS, SOCIAL_LINKS, SCHEDULE } from '../../config/business';
 import styles from './Footer.module.css';
-
-const SOCIAL_LINKS = {
-  instagram: 'https://instagram.com/barberiachaco',
-  whatsapp: 'https://wa.me/5493329665487',
-  facebook: 'https://facebook.com',
-};
 
 const NAV_LINKS = [
   { label: 'Inicio', href: '/' },
@@ -25,8 +20,8 @@ const Footer = () => {
 
         {/* Col 1 — Marca */}
         <div className={styles.brand}>
-          <p className={styles.brandName}>Chaco Barber</p>
-          <p className={styles.tagline}>Más que un corte, una identidad.</p>
+          <p className={styles.brandName}>{BUSINESS.name}</p>
+          <p className={styles.tagline}>{BUSINESS.tagline}</p>
           <div className={styles.socials}>
             <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <InstagramIcon />
@@ -34,14 +29,11 @@ const Footer = () => {
             <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <WhatsappIcon />
             </a>
-            <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-              <FacebookIcon />
-            </a>
           </div>
         </div>
 
         {/* Col 2 — Navegación */}
-        <nav className={styles.col}>
+        <nav className={styles.col} aria-label="Pie de página">
           <p className={styles.colTitle}>Navegación</p>
           <ul className={styles.linkList}>
             {NAV_LINKS.map((link) => (
@@ -56,27 +48,27 @@ const Footer = () => {
         <div className={styles.col}>
           <p className={styles.colTitle}>Contacto</p>
           <ul className={styles.infoList}>
-            <li>Av. San Martín, La Violeta<br />Pergamino, Buenos Aires (2751)</li>
+            <li>{BUSINESS.address}</li>
             <li>
-              <a href="tel:+5493329665487" className={styles.link}>+54 9 3329-665487</a>
+              <a href={`tel:${BUSINESS.phone.replace(/[\s-]/g, '')}`} className={styles.link}>{BUSINESS.phone}</a>
             </li>
             <li>
-              <a href="mailto:contacto@barberia.com" className={styles.link}>contacto@barberia.com</a>
+              <a href={`mailto:${BUSINESS.email}`} className={styles.link}>{BUSINESS.email}</a>
             </li>
           </ul>
 
           <p className={styles.colTitleSub}>Horarios</p>
           <ul className={styles.infoList}>
-            <li>Lun – Jue: 10:00 – 13:00 · 16:00 – 20:00</li>
-            <li>Vie y Sáb: orden de llegada</li>
-            <li>Dom: cerrado</li>
+            {SCHEDULE.map((item) => (
+              <li key={item.day}>{item.day}: {item.hours}</li>
+            ))}
           </ul>
         </div>
 
       </div>
 
       <div className={styles.bottomBar}>
-        <span>© {year} Chaco Barber · Todos los derechos reservados.</span>
+        <span>© {year} {BUSINESS.name} · Todos los derechos reservados.</span>
       </div>
     </footer>
   );
