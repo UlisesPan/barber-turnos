@@ -22,8 +22,8 @@ const ManageServices = () => {
         <button className={styles.backBtn} onClick={() => navigate('/turnos')}>← Volver</button>
       </div>
 
-      {error && <div className={styles.errorMsg}>{error}</div>}
-      {success && <div className={styles.successMsg}>{success}</div>}
+      {error && <div className={styles.errorMsg} role="alert">{error}</div>}
+      {success && <div className={styles.successMsg} role="status">{success}</div>}
 
       {loading ? (
         <div className={styles.spinner}><div className={styles.spinnerCircle} /></div>
@@ -39,6 +39,7 @@ const ManageServices = () => {
                   <span className={styles.currency}>$</span>
                   <input
                     type="number"
+                    aria-label={`Precio de ${service.name}`}
                     min="0"
                     step="50"
                     className={styles.priceInput}

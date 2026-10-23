@@ -13,24 +13,24 @@ const Login = () => {
         <div className={styles.brandPanel}>
           <div className={styles.brandTop}>
             <h2>CHACO BARBER</h2>
-            <p className={styles.brandTagline}>PRECISION PERSONIFICADA</p>
+            <p className={styles.brandTagline}>PRECISIÓN PERSONALIZADA</p>
           </div>
           <p className={styles.brandText}>
-            BIENVENIDO A LA BARBERIA DONDE PODRAS ENCONTRAR TU ESTILO
+            Bienvenido a la barbería donde vas a encontrar tu estilo.
           </p>
         </div>
 
         <div className={styles.formPanel}>
           <h1>Acceso de Miembros</h1>
           <p className={styles.description}>
-            Ingrese sus datos para continuar.
+            Ingresá tus datos para continuar.
           </p>
 
-          {error && <div className={styles.error}>{error}</div>}
+          {error && <div className={styles.error} role="alert">{error}</div>}
 
           <form onSubmit={handleSubmit} noValidate>
             <div className={styles.formGroup}>
-              <label htmlFor="email">Email </label>
+              <label htmlFor="email">Email</label>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}><IconMail /></span>
                 <input
@@ -39,7 +39,8 @@ const Login = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="you@example.com"
+                  placeholder="tu@email.com"
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -47,8 +48,7 @@ const Login = () => {
 
             <div className={styles.formGroup}>
               <div className={styles.labelRow}>
-                <label htmlFor="password">Password</label>
-                <a href="#" className={styles.forgotLink}>Forgot Password?</a>
+                <label htmlFor="password">Contraseña</label>
               </div>
               <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}><IconLock /></span>
@@ -58,14 +58,15 @@ const Login = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="********"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
                   required
                 />
                 <button
                   type="button"
                   className={styles.togglePassword}
                   onClick={togglePassword}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
                   <IconEye open={showPassword} />
                 </button>
@@ -77,12 +78,12 @@ const Login = () => {
               className={styles.loginBtn}
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Login →'}
+              {loading ? 'Ingresando...' : 'Ingresar →'}
             </button>
           </form>
 
           <div className={styles.registerLink}>
-            No estas registrado? <Link to="/register">REGISTRARME</Link>
+            ¿No tenés cuenta? <Link to="/register">Registrarme</Link>
           </div>
         </div>
       </div>

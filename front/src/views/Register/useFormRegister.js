@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../services/authService';
+import { parseLocalDate } from '../../utils/format';
+import { apiErrorMessage } from '../../api/axiosInstance';
+
+const MIN_AGE = 16;
 
 const validateField = (name, value) => {
   switch (name) {
@@ -21,12 +25,12 @@ const validateField = (name, value) => {
     }
     case 'birthdate': {
       if (!value)                                 return 'La fecha de nacimiento es obligatoria';
-      const birth = new Date(value);
+      const birth = parseLocalDate(value);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (birth > today)                          return 'La fecha ingresada no es valida';
-      if (birth.getFullYear() < 1900)             return 'La fecha ingresada no es valida';
-      // Edad mínima 16 años
+      if (isNaN(birth) || birth > today || birth.getFullYear() < 1900)
+                                                  return 'La fecha ingresada no es válida';
+      const minAgeDate = new Date(today.getFullYear() - MIN_AGE, today.getMonth(), today.getDate());
+      if (birth > minAgeDate)                     return `Tenés que tener al menos ${MIN_AGE} años`;
       return '';
     }
     case 'nDni': {
@@ -97,7 +101,7 @@ const useRegisterForm = () => {
       setSuccess('¡Cuenta creada! Redirigiendo al login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrarse');
+      setError(apiErrorMessage(err, 'Error al registrarse'));
     } finally {
       setLoading(false);
     }

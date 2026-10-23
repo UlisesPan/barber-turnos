@@ -4,6 +4,12 @@ import { useReserveAppointments } from './useReserveHooks';
 import { useNavigate } from 'react-router-dom';
 import { IconScissor, IconPadlock, IconUnlock, IconCheck } from '../../components/Icons/Icons';
 import { MORNING_SLOTS, AFTERNOON_SLOTS } from './slots';
+import { formatPrice, formatWeekdayDate as formatDisplayDate } from '../../utils/format';
+
+// Hace que un elemento no-botón sea operable con teclado (Enter / Espacio)
+const onActivate = (fn) => (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+};
 
 // Encabezados del calendario, lunes primero (estándar Argentina)
 const DAY_LABELS = ['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO'];
@@ -12,15 +18,6 @@ const STEPS = [
   { num: 2, label: 'FECHA & HORA' },
   { num: 3, label: 'CONFIRMAR' },
 ];
-
-// Convierte "2026-06-15" a "lunes 15 de junio" para mostrar al usuario
-const formatDisplayDate = (dateStr) => {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  // Usamos new Date(y, m-1, d) en lugar de new Date(dateStr) para evitar el bug de timezone
-  return new Date(y, m - 1, d).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  });
-};
 
 const SlotGroup = ({
   label, slots, isAdminBlockMode,
@@ -50,7 +47,7 @@ const SlotGroup = ({
               title={isTaken ? 'Turno reservado' : isBlocked ? 'Bloqueado — click para desbloquear' : 'Click para bloquear'}
             >
               {blockingSlot === time ? '...' : time}
-              {isBlocked && !isTaken && <IconPadlock className={styles.slotLockIcon} />}
+              {isBlocked && !isTaken && <span className={styles.slotLockIcon}><IconPadlock /></span>}
             </button>
           );
         }
@@ -67,7 +64,7 @@ const SlotGroup = ({
             disabled={disabledSlots.includes(time)}
             title={isTaken ? 'Turno ocupado' : isBlocked ? 'No disponible' : ''}
           >
-            {time}{isBlocked && !isTaken && <IconPadlock className={styles.slotLockIcon} />}
+            {time}{isBlocked && !isTaken && <span className={styles.slotLockIcon}><IconPadlock /></span>}
           </button>
         );
       })}
@@ -127,7 +124,7 @@ const ReserveAppointments = () => {
             <div className={styles.successRow}><span>Servicio</span><strong>{success.service.name}</strong></div>
             <div className={styles.successRow}><span>Fecha</span><strong>{formatDisplayDate(success.date)}</strong></div>
             <div className={styles.successRow}><span>Hora</span><strong>{success.time} hs</strong></div>
-            <div className={styles.successRow}><span>Total</span><strong>${success.service.price}</strong></div>
+            <div className={styles.successRow}><span>Total</span><strong>{formatPrice(success.service.price)}</strong></div>
           </div>
           <button className={styles.successBtn} onClick={() => navigate('/turnos')}>
             Ver mis turnos →
@@ -161,6 +158,13 @@ const ReserveAppointments = () => {
                   currentStep > step.num ? styles.stepDone : '',
                 ].join(' ')}
                 onClick={() => { if (step.num < currentStep) backstep(step.num); }}
+                {...(step.num < currentStep && {
+                  role: 'button',
+                  tabIndex: 0,
+                  'aria-label': `Volver al paso ${step.num}: ${step.label}`,
+                  onKeyDown: onActivate(() => backstep(step.num)),
+                })}
+                aria-current={currentStep === step.num ? 'step' : undefined}
               >
                 {/* Si el paso ya se completó muestra ✓, si no muestra el número */}
                 <span className={styles.stepNum}>{currentStep > step.num ? <IconCheck /> : step.num}</span>
@@ -175,7 +179,7 @@ const ReserveAppointments = () => {
         </div>
       )}
 
-      {error && <div className={styles.errorMsg}>{error}</div>}
+      {error && <div className={styles.errorMsg} role="alert">{error}</div>}
 
       <div className={styles.layout}>
         {/* PANEL IZQUIERDO: contenido del paso actual */}
@@ -187,8 +191,9 @@ const ReserveAppointments = () => {
               {/* El admin que agenda para un cliente debe elegirlo antes de avanzar */}
               {isAdminBookMode && (
                 <div className={styles.clientSelect}>
-                  <label className={styles.clientLabel}>Cliente</label>
+                  <label className={styles.clientLabel} htmlFor="client-select">Cliente</label>
                   <select
+                    id="client-select"
                     className={styles.clientInput}
                     value={selectedClient?.id ?? ''}
                     onChange={(e) => {
@@ -213,6 +218,10 @@ const ReserveAppointments = () => {
                       key={service.id}
                       className={[styles.serviceCard, selectedService?.id === service.id ? styles.serviceSelected : ''].join(' ')}
                       onClick={() => handleServiceSelect(service)}
+                      onKeyDown={onActivate(() => handleServiceSelect(service))}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={selectedService?.id === service.id}
                     >
                       <div className={styles.serviceImageWrapper}>
                         {service.image
@@ -223,7 +232,7 @@ const ReserveAppointments = () => {
                         <p className={styles.serviceName}>{service.name}</p>
                         <p className={styles.serviceDuration}>{service.duration} min</p>
                       </div>
-                      <span className={styles.servicePrice}>${service.price}</span>
+                      <span className={styles.servicePrice}>{formatPrice(service.price)}</span>
                     </div>
                   ))}
                 </div>
@@ -258,11 +267,11 @@ const ReserveAppointments = () => {
                 {/* CALENDARIO */}
                 <div className={styles.calendar}>
                   <div className={styles.calendarHeader}>
-                    <button className={styles.monthNav} onClick={prevMonth} disabled={isCurrentMonth}>‹</button>
+                    <button className={styles.monthNav} onClick={prevMonth} disabled={isCurrentMonth} aria-label="Mes anterior">‹</button>
                     <span className={styles.monthLabel}>
                       {currentMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase()}
                     </span>
-                    <button className={styles.monthNav} onClick={nextMonth}>›</button>
+                    <button className={styles.monthNav} onClick={nextMonth} aria-label="Mes siguiente">›</button>
                   </div>
                   <div className={styles.calendarGrid}>
                     {DAY_LABELS.map((d) => <span key={d} className={styles.dayLabel}>{d}</span>)}
@@ -277,6 +286,8 @@ const ReserveAppointments = () => {
                         ].join(' ')}
                         onClick={() => cell.day && !cell.disabled && handleDateSelect(cell.dateStr)}
                         disabled={!cell.day || cell.disabled}
+                        aria-label={cell.dateStr ? formatDisplayDate(cell.dateStr) : undefined}
+                        aria-pressed={cell.day ? selectedDate === cell.dateStr : undefined}
                       >
                         {cell.day}
                       </button>
@@ -333,7 +344,7 @@ const ReserveAppointments = () => {
                 <div className={styles.confirmRow}><span>Fecha</span><strong>{selectedDate && formatDisplayDate(selectedDate)}</strong></div>
                 <div className={styles.confirmRow}><span>Hora</span><strong>{selectedTime} hs</strong></div>
                 <div className={[styles.confirmRow, styles.confirmTotal].join(' ')}>
-                  <span>Total</span><strong>${selectedService?.price}</strong>
+                  <span>Total</span><strong>{selectedService && formatPrice(selectedService.price)}</strong>
                 </div>
                 {/* disabled mientras espera la respuesta del servidor */}
                 <button className={styles.confirmBtn} onClick={handleConfirm} disabled={submitting}>
@@ -363,7 +374,7 @@ const ReserveAppointments = () => {
                 </div>
                 <div className={styles.summaryRow}>
                   <span className={styles.summaryLabel}>Precio</span>
-                  <span className={styles.summaryValue}>{selectedService ? `$${selectedService.price}` : '—'}</span>
+                  <span className={styles.summaryValue}>{selectedService ? formatPrice(selectedService.price) : '—'}</span>
                 </div>
                 <div className={styles.summaryRow}>
                   <span className={styles.summaryLabel}>Fecha</span>

@@ -60,7 +60,7 @@
 }
 
 .title {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: clamp(2.2rem, 5vw, 3.4rem);
   line-height: 1.1;
   font-weight: 700;
@@ -101,7 +101,7 @@
 }
 
 .cardTitle {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -184,7 +184,7 @@
 
 .socialIcons a:hover {
   background: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
   transform: translateY(-2px);
 }
 

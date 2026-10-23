@@ -58,7 +58,7 @@
 
 .socials a:hover {
   background: var(--accent-color);
-  color: #1a1512;
+  color: var(--ink);
   transform: translateY(-2px);
 }
 
@@ -120,13 +120,13 @@
   transform: translateY(-50%);
   width: 0;
   height: 1.5px;
-  background: #fcc40c;
+  background: var(--gold);
   border-radius: 2px;
   transition: width 0.2s;
 }
 
 .link:hover {
-  color: #fcc40c;
+  color: var(--gold);
   padding-left: 4px;
 }
 

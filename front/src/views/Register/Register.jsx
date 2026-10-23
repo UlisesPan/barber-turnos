@@ -28,8 +28,8 @@ const Register = () => {
           <h2 className={styles.formTitle}>Registro</h2>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
+        {error && <div className={styles.error} role="alert">{error}</div>}
+        {success && <div className={styles.success} role="status">{success}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={styles.formGroup}>

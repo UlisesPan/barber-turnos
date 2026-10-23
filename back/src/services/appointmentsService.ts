@@ -1,180 +1,131 @@
-import { IsNull } from 'typeorm';
-import {  CreateAppointmentDto } from '../interfaces/IAppointments';
-import {sendTurnConfirmation, sendNewAppointmentNotification} from './mailerService';
+import { IsNull, QueryFailedError } from 'typeorm';
+import { CreateAppointmentDto } from '../interfaces/IAppointments';
+import { sendTurnConfirmation, sendNewAppointmentNotification } from './mailerService';
 import Appointment from '../entities/Appointments';
-import { AppointmentModel, ServiceModel, UserModel, BlockedSlotModel } from '../config/AppDataSources';
-import { isValidTimeSlot,
-   getTimeSlotErrorMessage,
-    validateNoConflictAppointment,
-     timeRegex,
-      isValidWeekday,
-       getWeekdayErrorMessage,
-        formatDateToString }
-         from '../utils/appointmentValidation';
+import { AppointmentModel, CategoryModel, UserModel, BlockedSlotModel } from '../config/AppDataSources';
+import { isValidTimeSlot, isValidWeekday, isPastSlot, TIME_SLOT_ERROR, WEEKDAY_ERROR } from '../utils/schedule';
+import { badRequest, conflict, notFound } from '../utils/HttpError';
+import { toAppointmentDto, AppointmentDto } from '../dtos';
 
+const PG_UNIQUE_VIOLATION = '23505';
 
-
-export const getAllTurnsService = async (): Promise<Appointment[]> => {
-    const appointments = await AppointmentModel.find({});
-    return appointments;
+export const getAllAppointmentsService = async (): Promise<AppointmentDto[]> => {
+    const appointments = await AppointmentModel.find({ order: { date: 'DESC', time: 'ASC' } });
+    return appointments.map(toAppointmentDto);
 };
 
-export const getTakenSlotsByDateService = async (dateStr: string) => {
-  const appointments = await AppointmentModel.find();
-  const takenSlots = appointments
-    .filter(a => a.status === 'active' && formatDateToString(a.date) === dateStr)
-    .map(a => a.time);
+export const getTakenSlotsByDateService = async (date: string) => {
+    const [appointments, blockEntries] = await Promise.all([
+        AppointmentModel.find({
+            where: { date, status: 'active' },
+            select: { id: true, time: true },
+            loadEagerRelations: false,
+        }),
+        BlockedSlotModel.find({ where: { date } }),
+    ]);
 
-  const blockEntries = await BlockedSlotModel.find({ where: { date: dateStr } });
-  const isDayBlocked = blockEntries.some(b => b.time === null);
-  const blockedSlots = blockEntries.filter(b => b.time !== null).map(b => b.time!);
-
-  return { takenSlots, blockedSlots, isDayBlocked };
+    return {
+        takenSlots: appointments.map(a => a.time),
+        blockedSlots: blockEntries.filter(b => b.time !== null).map(b => ({ id: b.id, time: b.time! })),
+        isDayBlocked: blockEntries.some(b => b.time === null),
+    };
 };
 
-
-export const getTurnsByUserService = async (userId: number): Promise<Appointment[]> => {
+export const getAppointmentsByUserService = async (userId: number): Promise<AppointmentDto[]> => {
     const appointments = await AppointmentModel.find({
         where: { user: { id: userId } },
+        order: { date: 'DESC', time: 'ASC' },
     });
-    return appointments;
+    return appointments.map(toAppointmentDto);
 };
 
-export const getTurnByIdService = async (id: number): Promise<Appointment> => {
-    const appointment = await AppointmentModel.findOne({
-        where: { id }
-    });
-    if (!appointment) throw new Error("Turno no encontrado");
+export const getAppointmentEntityById = async (id: number): Promise<Appointment> => {
+    const appointment = await AppointmentModel.findOne({ where: { id } });
+    if (!appointment) throw notFound("Turno no encontrado");
     return appointment;
-}
-
-export const createTurnService = async (turnData: Omit<CreateAppointmentDto, 'id'>): Promise<Appointment> => {
-    // Validar que userId esté presente - NO PUEDE HABER UN TURNO SIN ID DE USUARIO
-    if (!turnData.userId) {
-        throw new Error("El ID del usuario es requerido para crear un turno");
-    }
-
-    const user = await UserModel.findOne({ where: { id: turnData.userId } });
-    if (!user) throw new Error("Usuario no encontrado");
-
-    const service = await ServiceModel.findOne({
-    where: { id: turnData.serviceId },
-  });
-
-  if (!service) throw new Error("Servicio no encontrado");
-
-  const [y, m, d] = turnData.date.split('-').map(Number);
-  const appointmentDate = new Date(y, m - 1, d);
-  if (isNaN(appointmentDate.getTime())) {
-    throw new Error("Formato de fecha inválido. Usa: YYYY-MM-DD");
-  }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (appointmentDate < today) {
-    throw new Error("No se puede agendar un turno en una fecha pasada");
-  }
-
-  if (!isValidWeekday(turnData.date)) {
-    throw new Error(getWeekdayErrorMessage());
-  }
-
-    if (!timeRegex.test(turnData.time)) {
-        throw new Error(getTimeSlotErrorMessage());
-    }
-
-    if (!isValidTimeSlot(turnData.time)) {
-        throw new Error(getTimeSlotErrorMessage());
-    }
-  
-const blockEntries = await BlockedSlotModel.find({ where: [
-  { date: turnData.date, time: turnData.time },
-  { date: turnData.date, time: IsNull() },  // ← IsNull() en vez de null as any
-]});
-if (blockEntries.length > 0) {
-  throw new Error("Este horario no está disponible");
-}  
-  const allAppointments = await AppointmentModel.find();
-
-  
-
-
-    const hasConflict = await validateNoConflictAppointment(
-      allAppointments,
-      appointmentDate,
-      turnData.time
-    );
-
-    if (!hasConflict) {
-        throw new Error("Ya existe un turno en esa fecha y hora");
-    }
-
-    const newAppointment = await AppointmentModel.create({
-        date: appointmentDate,
-        time: turnData.time,
-        user: user,
-        category: service,
-        status: 'active'
-    });
-
-    const savedAppointment = await AppointmentModel.save(newAppointment);
-
-    // Sin await: los mails se mandan en background para no bloquear la respuesta
-    // al front si el SMTP tarda o se cuelga (el turno ya quedó guardado igual).
-    sendTurnConfirmation(user.email, 'active')
-      .catch((emailError) => console.warn("⚠️ Error al enviar email:", emailError));
-
-    sendNewAppointmentNotification({
-      clientName: user.name,
-      serviceName: service.name,
-      date: turnData.date,
-      time: turnData.time,
-    }).catch((emailError) => console.warn("⚠️ Error al enviar aviso al dueño:", emailError));
-
-    return savedAppointment;
 };
 
+export const createAppointmentService = async (data: CreateAppointmentDto): Promise<AppointmentDto> => {
+    const [user, service] = await Promise.all([
+        UserModel.findOne({ where: { id: data.userId } }),
+        CategoryModel.findOne({ where: { id: data.serviceId } }),
+    ]);
+    if (!user) throw notFound("Usuario no encontrado");
+    if (!service) throw notFound("Servicio no encontrado");
 
+    if (!isValidWeekday(data.date)) throw badRequest(WEEKDAY_ERROR);
+    if (!isValidTimeSlot(data.time)) throw badRequest(TIME_SLOT_ERROR);
+    if (isPastSlot(data.date, data.time)) throw badRequest("No se puede agendar un turno en una fecha u hora pasada");
 
+    const blocked = await BlockedSlotModel.count({
+        where: [
+            { date: data.date, time: data.time },
+            { date: data.date, time: IsNull() },
+        ],
+    });
+    if (blocked > 0) throw conflict("Este horario no está disponible");
 
-export const cancelTurnService = async (id: number): Promise<Appointment> => {
-  const appointment = await AppointmentModel.findOne({
-    where: { id }
-  });
+    const taken = await AppointmentModel.count({ where: { date: data.date, time: data.time, status: 'active' } });
+    if (taken > 0) throw conflict("Ya existe un turno en esa fecha y hora");
 
-  if (!appointment) {
-    throw new Error("Turno no encontrado");
-  }
+    let saved: Appointment;
+    try {
+        saved = await AppointmentModel.save(AppointmentModel.create({
+            date: data.date,
+            time: data.time,
+            user,
+            category: service,
+            status: 'active',
+        }));
+    } catch (err) {
+        // Dos reservas simultáneas: el índice único UQ_active_slot rechaza la segunda
+        if (err instanceof QueryFailedError && (err.driverError as { code?: string })?.code === PG_UNIQUE_VIOLATION) {
+            throw conflict("Ya existe un turno en esa fecha y hora");
+        }
+        throw err;
+    }
 
-  if (appointment.status === 'cancelled') {
-    throw new Error("El turno ya estaba cancelado");
-  }
+    // Sin await: los mails van en background para no bloquear la respuesta
+    const details = { clientName: user.name, serviceName: service.name, date: data.date, time: data.time };
+    sendTurnConfirmation(user.email, 'active', details)
+        .catch((e) => console.warn("Error al enviar email:", e));
+    sendNewAppointmentNotification(details)
+        .catch((e) => console.warn("Error al enviar aviso al dueño:", e));
 
-  appointment.status = 'cancelled';
-  const updatedAppointment = await AppointmentModel.save(appointment);
+    return toAppointmentDto(saved);
+};
 
-  // Sin await, mismo motivo que en createTurnService.
-  sendTurnConfirmation(appointment.user.email, 'cancelled')
-    .catch((emailError) => console.warn("⚠️ Error al enviar email de cancelación:", emailError));
+export const cancelAppointmentService = async (appointment: Appointment): Promise<AppointmentDto> => {
+    if (appointment.status === 'cancelled') throw badRequest("El turno ya estaba cancelado");
+    if (appointment.status === 'completed' || isPastSlot(appointment.date, appointment.time)) {
+        throw badRequest("No se puede cancelar un turno que ya pasó");
+    }
 
-  return updatedAppointment;
+    appointment.status = 'cancelled';
+    const updated = await AppointmentModel.save(appointment);
+
+    sendTurnConfirmation(appointment.user.email, 'cancelled', {
+        clientName: appointment.user.name,
+        serviceName: appointment.category.name,
+        date: appointment.date,
+        time: appointment.time,
+    }).catch((e) => console.warn("Error al enviar email de cancelación:", e));
+
+    return toAppointmentDto(updated);
 };
 
 export const blockSlotService = async (date: string, time: string | null, reason?: string) => {
-  const existing = await BlockedSlotModel.findOne({
-  where: { date, time: time !== null ? time : IsNull() }
-});
-  if (existing) throw new Error("Este slot ya está bloqueado");
-  const blocked = BlockedSlotModel.create({ date, time: time ?? null, reason: reason ?? null });
-  return await BlockedSlotModel.save(blocked);
+    if (time !== null && !isValidTimeSlot(time)) throw badRequest(TIME_SLOT_ERROR);
+    const existing = await BlockedSlotModel.findOne({ where: { date, time: time ?? IsNull() } });
+    if (existing) throw conflict("Este horario ya está bloqueado");
+    return BlockedSlotModel.save(BlockedSlotModel.create({ date, time, reason: reason ?? null }));
 };
 
 export const unblockSlotService = async (id: number) => {
-  const blocked = await BlockedSlotModel.findOne({ where: { id } });
-  if (!blocked) throw new Error("Bloqueo no encontrado");
-  await BlockedSlotModel.remove(blocked);
+    const blocked = await BlockedSlotModel.findOne({ where: { id } });
+    if (!blocked) throw notFound("Bloqueo no encontrado");
+    await BlockedSlotModel.remove(blocked);
 };
 
-export const getBlockedByDateService = async (dateStr: string) => {
-  return await BlockedSlotModel.find({ where: { date: dateStr } });
-};
+export const getBlockedByDateService = (date: string) =>
+    BlockedSlotModel.find({ where: { date } });

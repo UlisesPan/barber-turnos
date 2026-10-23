@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/Auth/AuthContext';
+import { apiErrorMessage } from '../../api/axiosInstance';
 import { getCategories, updateCategory } from '../../services/categoryService';
 
 export const useManageServices = () => {
-  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [services, setServices] = useState([]);   // [{ id, name, price, ... }]
@@ -14,10 +13,7 @@ export const useManageServices = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Guard de vista: solo el admin puede gestionar precios
-  useEffect(() => {
-    if (user && user.role !== 'admin') navigate('/');
-  }, [user, navigate]);
+  // El acceso solo-admin lo garantiza <ProtectedRoute adminOnly> en App.jsx
 
   // Carga inicial de servicios
   useEffect(() => {
@@ -47,14 +43,14 @@ export const useManageServices = () => {
 
     setSavingId(service.id);
     try {
-      const res = await updateCategory(service.id, { price: newPrice }, token);
+      const res = await updateCategory(service.id, { price: newPrice });
       const updated = res.data.category;
       // Reflejo el precio actualizado en la lista
       setServices((prev) => prev.map((s) => (s.id === service.id ? { ...s, price: updated.price } : s)));
       setPrices((prev) => ({ ...prev, [service.id]: updated.price }));
       setSuccess(`Precio de "${service.name}" actualizado.`);
     } catch (err) {
-      setError(err.response?.data?.message || 'No se pudo actualizar el precio.');
+      setError(apiErrorMessage(err, 'No se pudo actualizar el precio.'));
     } finally {
       setSavingId(null);
     }

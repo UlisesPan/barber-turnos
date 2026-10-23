@@ -1,11 +1,13 @@
-import { useState, useContext  } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/Auth/AuthContext.jsx';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/Auth/AuthContext';
 import { loginUser } from '../../services/authService';
+import { apiErrorMessage } from '../../api/axiosInstance';
 
 const useLoginForm = () => {
-    const { login } = useContext(AuthContext);
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -28,9 +30,10 @@ const useLoginForm = () => {
     try {
       const response = await loginUser(formData);
       login(response.data.user, response.data.token);
-      navigate('/');
+      // Vuelve a la página protegida que pidió el login (o al inicio)
+      navigate(location.state?.from ?? '/', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Email o contraseña incorrectos');
+      setError(apiErrorMessage(err, 'Email o contraseña incorrectos'));
     } finally {
       setLoading(false);
     }

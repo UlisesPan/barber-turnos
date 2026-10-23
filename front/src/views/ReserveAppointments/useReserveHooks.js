@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getCategories } from "../../services/categoryService";
 import { getUsers } from "../../services/userService";
@@ -9,7 +9,9 @@ import {
   blockSlot,
   unblockSlot,
 } from "../../services/appointmentService";
-import AuthContext from '../../context/Auth/AuthContext';
+import { useAuth } from '../../context/Auth/AuthContext';
+import { apiErrorMessage } from '../../api/axiosInstance';
+import { toDateStr } from '../../utils/format';
 import { ALL_SLOTS } from './slots';
 
 const generateCalendarDays = (year, month) => {
@@ -28,7 +30,7 @@ const generateCalendarDays = (year, month) => {
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
     const dow = date.getDay();
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dateStr = toDateStr(date);
     days.push({
       day: d,
       dateStr,
@@ -40,7 +42,7 @@ const generateCalendarDays = (year, month) => {
 };
 
 export const useReserveAppointments = () => {
-  const { user, isAuthenticated, token } = useContext(AuthContext);
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   // 'book' = agendar turno · 'block' = bloquear agenda. Lo manda MyAppointments en location.state.
@@ -69,8 +71,7 @@ export const useReserveAppointments = () => {
   const [selectedClient, setSelectedClient] = useState(null);
 
   const now = new Date();
-  const todayStr =
-    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const todayStr = toDateStr(now);
 
   const pastSlotsToday = selectedDate === todayStr
     ? ALL_SLOTS.filter((slot) => {
@@ -111,11 +112,6 @@ export const useReserveAppointments = () => {
     setCurrentStep(2);
   };
 
-  // Normaliza la respuesta de blockedSlots a objetos { id, time } sin importar si el
-  // endpoint devuelve strings o ya devuelve objetos completos.
-  const normalizeBlockedSlots = (raw) =>
-    (raw ?? []).map(s => (typeof s === 'string' ? { id: null, time: s } : s));
-
   // Cuando elige una fecha, pido al backend qué horarios ya están tomados para ese día
   const handleDateSelect = async (dateStr) => {
     setSelectedDate(dateStr);
@@ -123,12 +119,13 @@ export const useReserveAppointments = () => {
     try {
       const res = await getAvailability(dateStr);
       setTakenSlots(res.data.takenSlots);
-      setBlockedSlots(normalizeBlockedSlots(res.data.blockedSlots));
+      setBlockedSlots(res.data.blockedSlots ?? []); // [{ id, time }]
       setIsDayBlocked(res.data.isDayBlocked);
     } catch {
       setTakenSlots([]);
       setBlockedSlots([]);
       setIsDayBlocked(false);
+      setError('No se pudo consultar la disponibilidad de ese día.');
     }
   };
 
@@ -146,25 +143,17 @@ export const useReserveAppointments = () => {
     if (!selectedDate) return;
     setBlockingSlot(time);
     try {
-      const isBlocked = blockedSlots.some(b => b.time === time);
-      if (isBlocked) {
-        let entry = blockedSlots.find(b => b.time === time);
-        // Si el id es null (vino como string de getAvailability), lo buscamos con el endpoint admin
-        if (!entry?.id) {
-          const fetchRes = await getBlockedSlots(selectedDate, token);
-          entry = fetchRes.data.find(b => b.time === time);
-        }
-        if (entry) await unblockSlot(entry.id, token);
+      const entry = blockedSlots.find(b => b.time === time);
+      if (entry) {
+        await unblockSlot(entry.id);
         setBlockedSlots(prev => prev.filter(b => b.time !== time));
       } else {
-        const res = await blockSlot(selectedDate, time, token);
-        // Usamos el objeto devuelto por la API si tiene la forma esperada; sino guardamos solo el time
-        const newEntry = res?.data?.time ? res.data : { id: null, time };
-        setBlockedSlots(prev => [...prev, newEntry]);
+        const res = await blockSlot(selectedDate, time);
+        setBlockedSlots(prev => [...prev, { id: res.data.id, time }]);
         setSelectedTime(prev => prev === time ? null : prev);
       }
-    } catch {
-      setError('No se pudo actualizar el bloqueo.');
+    } catch (err) {
+      setError(apiErrorMessage(err, 'No se pudo actualizar el bloqueo.'));
     } finally {
       setBlockingSlot(null);
     }
@@ -174,17 +163,17 @@ export const useReserveAppointments = () => {
     if (!selectedDate) return;
     try {
       if (isDayBlocked) {
-        const res = await getBlockedSlots(selectedDate, token);
+        const res = await getBlockedSlots(selectedDate);
         const entry = res.data.find(b => b.time === null);
-        if (entry) await unblockSlot(entry.id, token);
+        if (entry) await unblockSlot(entry.id);
         setIsDayBlocked(false);
       } else {
-        await blockSlot(selectedDate, null, token);
+        await blockSlot(selectedDate, null);
         setIsDayBlocked(true);
         setSelectedTime(null);
       }
-    } catch {
-      setError('No se pudo actualizar el bloqueo del día.');
+    } catch (err) {
+      setError(apiErrorMessage(err, 'No se pudo actualizar el bloqueo del día.'));
     }
   };
 
@@ -204,8 +193,9 @@ export const useReserveAppointments = () => {
       setSuccess({ service: selectedService, date: selectedDate, time: selectedTime,
         client: isAdminBookMode ? selectedClient : null, data: res.data });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al crear el turno.');
+      setError(apiErrorMessage(err, 'Error al crear el turno.'));
       setCurrentStep(2); // Vuelvo al paso 2 para que pueda elegir otro horario
+      if (selectedDate) handleDateSelect(selectedDate); // refresco la disponibilidad
     } finally {
       setSubmitting(false);
     }
@@ -236,15 +226,12 @@ export const useReserveAppointments = () => {
   const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
 
   return {
-    user,
-    adminMode,
     isAdminBookMode,
     isAdminBlockMode,
     clients,
     selectedClient,
     setSelectedClient,
     backstep: (step) => step != null ? setCurrentStep(step) : setCurrentStep((prev) => Math.max(1, prev - 1)),
-    goToStep: (n) => setCurrentStep(n),
     services,
     selectedService,
     currentStep,

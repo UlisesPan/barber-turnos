@@ -11,7 +11,7 @@ export const loginUser = (data) =>
 export const registerUser = (data) =>
   axiosInstance.post('/users/register', {
     name: data.name,
-    email: data.email,
+    email: data.email.trim().toLowerCase(),
     birthdate: data.birthdate,
     nDni: data.nDni,
     password: data.password,
